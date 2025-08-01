@@ -70,16 +70,10 @@ public sealed class ApiResponse<TData>
         => new(false, StatusCodes.Status400BadRequest, message,
                default, errors?.ToList(), correlationId);
 
-    public static ApiResponse<TData> ValidationFailed(
-        IEnumerable<ApiError> errors,
+    public static ApiResponse<TData> Unauthorized(
+        string message = "Unauthorized.",
         string? correlationId = null)
-        => new(false, StatusCodes.Status422UnprocessableEntity,
-               "Validation failed.", default, errors.ToList(), correlationId);
-
-    public static ApiResponse<TData> NotFound(
-        string message = "Resource not found.",
-        string? correlationId = null)
-        => new(false, StatusCodes.Status404NotFound, message,
+        => new(false, StatusCodes.Status401Unauthorized, message,
                default, null, correlationId);
 
     public static ApiResponse<TData> Forbidden(
@@ -87,6 +81,18 @@ public sealed class ApiResponse<TData>
         string? correlationId = null)
         => new(false, StatusCodes.Status403Forbidden, message,
                default, null, correlationId);
+
+    public static ApiResponse<TData> NotFound(
+        string message = "Resource not found.",
+        string? correlationId = null)
+        => new(false, StatusCodes.Status404NotFound, message,
+               default, null, correlationId);
+
+    public static ApiResponse<TData> ValidationFailed(
+        IEnumerable<ApiError> errors,
+        string? correlationId = null)
+        => new(false, StatusCodes.Status422UnprocessableEntity,
+               "Validation failed.", default, errors.ToList(), correlationId);
 
     // ── Internal helpers ─────────────────────────────────────────────────
     private ApiResponse<TData> WithLocation(string location)
@@ -102,32 +108,33 @@ public sealed class ApiResponse<TData>
 /// </summary>
 public static class ApiResponse
 {
-    public static ApiResponse<T> Ok<T>(T data, string? message = null, string? corr = null)
-        => ApiResponse<T>.Ok(data, message, corr);
+    // ----- Success shortcuts -----
+    public static ApiResponse<T> Ok<T>(T data, string? msg = null, string? corr = null)
+        => ApiResponse<T>.Ok(data, msg, corr);
 
     public static ApiResponse<object?> NoContent(string? corr = null)
         => ApiResponse<object?>.NoContent(corr);
 
+    // ----- Failure shortcuts -----
     public static ApiResponse<object?> BadRequest(
-        string message,
-        IEnumerable<ApiError>? errors = null,
-        string? corr = null)
-        => ApiResponse<object?>.BadRequest(message, errors, corr);
+        string message, IEnumerable<ApiError>? errs = null, string? corr = null)
+        => ApiResponse<object?>.BadRequest(message, errs, corr);
 
-    public static ApiResponse<object?> ValidationFailed(
-        IEnumerable<ApiError> errors,
-        string? corr = null)
-        => ApiResponse<object?>.ValidationFailed(errors, corr);
-
-    public static ApiResponse<object?> NotFound(
-        string? message = null,
-        string? corr = null)
-        => ApiResponse<object?>.NotFound(message ?? "Resource not found.", corr);
+    public static ApiResponse<object?> Unauthorized(
+        string? message = null, string? corr = null)
+        => ApiResponse<object?>.Unauthorized(message ?? "Unauthorized.", corr);
 
     public static ApiResponse<object?> Forbidden(
-        string? message = null,
-        string? corr = null)
+        string? message = null, string? corr = null)
         => ApiResponse<object?>.Forbidden(message ?? "Forbidden.", corr);
+
+    public static ApiResponse<object?> NotFound(
+        string? message = null, string? corr = null)
+        => ApiResponse<object?>.NotFound(message ?? "Resource not found.", corr);
+
+    public static ApiResponse<object?> ValidationFailed(
+        IEnumerable<ApiError> errs, string? corr = null)
+        => ApiResponse<object?>.ValidationFailed(errs, corr);
 }
 
 /// <summary>

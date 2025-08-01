@@ -9,11 +9,12 @@ using Microsoft.AspNetCore.Mvc.ApplicationModels;
 using Microsoft.Identity.Web;
 using Microsoft.OpenApi.Models;
 using RESTfulAPI.Infrastructure.Auth;
+using RESTfulAPI.Presentation.Middleware;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // ─────────────────────────────────────────────────────────
-// 1.  CORS
+// CORS
 // ─────────────────────────────────────────────────────────
 builder.Services.AddCors(opts =>
 {
@@ -26,7 +27,7 @@ builder.Services.AddCors(opts =>
 });
 
 // ─────────────────────────────────────────────────────────
-// 2.  Authentication  +  Authorization
+// Authentication  +  Authorization
 // ─────────────────────────────────────────────────────────
 if (builder.Environment.IsDevelopment())
 {
@@ -48,13 +49,40 @@ else
     builder.Services
         .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         .AddMicrosoftIdentityWebApi(builder.Configuration.GetSection("AzureAd"));
+
+    builder.Services.Configure<JwtBearerOptions>(JwtBearerDefaults.AuthenticationScheme, options =>
+    {
+        options.Events = new JwtBearerEvents
+        {
+            OnChallenge = ctx =>
+            {
+                // Skip the default WWW-Authenticate header if you don't need it
+                // ctx.Response.Headers.Remove("WWW-Authenticate");
+
+                var payload = ApiResponse.Unauthorized("Access token is missing or invalid.");
+                ctx.HandleResponse();                         // stop default processing
+                ctx.Response.StatusCode = payload.Status;    // 401
+                ctx.Response.ContentType = "application/json";
+                return ctx.Response.WriteAsJsonAsync(payload);
+            },
+
+            OnForbidden = ctx =>
+            {
+                var payload = ApiResponse.Forbidden("You do not have permission.");
+                ctx.Response.StatusCode = payload.Status;    // 403
+                ctx.Response.ContentType = "application/json";
+                return ctx.Response.WriteAsJsonAsync(payload);
+            }
+        };
+    });
+
     builder.Services.AddAuthorization();
 }
 
 // ─────────────────────────────────────────────────────────
-// 3.  MVC  +  Swagger
+// MVC  +  Swagger
 // ─────────────────────────────────────────────────────────
-builder.Services.Configure<ApiBehaviorOptions>(o => o.SuppressModelStateInvalidFilter = false);
+builder.Services.Configure<ApiBehaviorOptions>(o => o.SuppressModelStateInvalidFilter = true);
 
 builder.Services.AddControllers(opts =>
 {
@@ -101,8 +129,11 @@ builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBeh
 var app = builder.Build();
 
 // ─────────────────────────────────────────────────────────
-// 4.  Middleware pipeline
+// Middleware pipeline
 // ─────────────────────────────────────────────────────────
+// Global exception handling
+app.UseGlobalExceptionHandling();
+
 // if (app.Environment.IsDevelopment()) // commented out to test without frontend in production for the time being
 // {
 app.UseSwagger();

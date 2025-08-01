@@ -1,29 +1,40 @@
 using FluentValidation;
 using MediatR;
 
-// Automatically checks validation, so manual checks with fluent validation are not needed
-public class ValidationBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse> where TRequest : notnull
+public sealed class ValidationBehavior<TReq, TRes>
+    : IPipelineBehavior<TReq, TRes> where TReq : notnull
 {
-    private readonly IEnumerable<IValidator<TRequest>> _validators;
-    public ValidationBehavior(IEnumerable<IValidator<TRequest>> validators)
-        => _validators = validators;
+    private readonly IEnumerable<IValidator<TReq>> _validators;
+    private readonly ILogger<ValidationBehavior<TReq, TRes>> _log;
 
-    public async Task<TResponse> Handle(
-        TRequest request,
-        RequestHandlerDelegate<TResponse> next,
+    public ValidationBehavior(IEnumerable<IValidator<TReq>> validators,
+                              ILogger<ValidationBehavior<TReq, TRes>> log)
+    {
+        _validators = validators;
+        _log = log;
+    }
+
+    public async Task<TRes> Handle(
+        TReq request,
+        RequestHandlerDelegate<TRes> next,
         CancellationToken ct)
     {
         if (_validators.Any())
         {
-            var context = new ValidationContext<TRequest>(request);
-            var failures = _validators
-                .Select(v => v.Validate(context))
-                .SelectMany(r => r.Errors)
-                .Where(f => f is not null)
-                .ToList();
+            var ctx = new ValidationContext<TReq>(request);
+
+            var failures = (await Task.WhenAll(
+                                _validators.Select(v => v.ValidateAsync(ctx, ct))))
+                           .SelectMany(r => r.Errors)
+                           .Where(f => f is not null)
+                           .ToList();
 
             if (failures.Count != 0)
-                throw new ValidationException(failures);     // MVC turns this into 400
+            {
+                _log.LogWarning("Validation failed for {Request}: {@Failures}",
+                                typeof(TReq).Name, failures);
+                throw new ValidationException(failures);  // <-- caught by middleware
+            }
         }
 
         return await next();
