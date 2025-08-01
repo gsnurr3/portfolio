@@ -1,0 +1,21 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Local Dev",
+      "type": "dotnet",
+      "request": "launch",
+      "projectPath": "${workspaceFolder}/src/RESTfulAPI/RESTfulAPI.csproj",
+      "launchConfigurationId": "TargetFramework=;RESTfulAPI-Dev",
+      "preLaunchTask": "dotnet-format"
+    },
+    {
+      "name": "Local Prod",
+      "type": "dotnet",
+      "request": "launch",
+      "projectPath": "${workspaceFolder}/src/RESTfulAPI/RESTfulAPI.csproj",
+      "launchConfigurationId": "TargetFramework=;RESTfulAPI-Prod",
+      "preLaunchTask": "dotnet-format"
+    }
+  ]
+}

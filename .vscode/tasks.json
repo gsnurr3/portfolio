@@ -1,0 +1,31 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "dotnet-format",
+      "type": "process",
+      "command": "dotnet",
+      "args": [
+        "format",
+        "--include", "${file}"
+      ],
+      "problemMatcher": [],
+      "group": "none",
+      "presentation": { "reveal": "never" },
+      "runOptions": { "runOn": "folderOpen" },
+    },
+    {
+      "label": "publish-api",
+      "type": "process",
+      "command": "dotnet",
+      "args": [
+        "publish",
+        "src/RESTfulAPI/RESTfulAPI.csproj",
+        "-c", "Debug",
+        "-o", "src/RESTfulAPI/out",
+        "--nologo"
+      ],
+      "problemMatcher": "$msCompile"
+    }
+  ]
+}

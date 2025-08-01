@@ -1,0 +1,5 @@
+Pushlish app for production with Windows IIS Manager:
+Open PowerShell with Admin
+cd "P:\Code Porfolio\portfolio\src\RESTfulAPI\"
+dotnet publish -c Release -o out --no-restore
+robocopy .\out\  C:\inetpub\RESTfulAPI  /MIR /NFL /NDL /XF web.config
