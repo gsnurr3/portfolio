@@ -6,7 +6,9 @@ public class PingHandler : IRequestHandler<PingRequest, PingResponse>
     {
         var response = new PingResponse();
 
-        response.Message = request.Message.ToUpperInvariant();
+        response.MessageOne = request.MessageOne.ToUpperInvariant();
+        response.MessageTwo = request.MessageTwo.ToLowerInvariant();
+        response.MessageThree = request.MessageThree;
 
         return await Task.FromResult(response);
     }

@@ -1,22 +1,21 @@
 using System.Diagnostics;
 
 /// <summary>
-/// Standard envelope for everything your API returns.
+/// Standard envelope for everything the API returns.
 /// </summary>
 public sealed class ApiResponse<TData>
 {
-    // ── Core ──────────────────────────────────────────────────────────────
     public bool Success { get; }
     public int Status { get; }
     public string? Message { get; }
     public TData? Data { get; }
     public IReadOnlyList<ApiError>? Errors { get; }
 
-    // ── Cross-cutting metadata (diagnostics, tracing, etc.) ───────────────
+    // ── Cross-cutting metadata (diagnostics, tracing, etc.)
     public string CorrelationId { get; }
     public DateTimeOffset Timestamp { get; }
 
-    // ── Private constructor forces use of the factories ──────────────────────────
+    // ── Private constructor forces use of the factories
     private ApiResponse(
         bool success,
         int status,
@@ -36,12 +35,12 @@ public sealed class ApiResponse<TData>
         Timestamp = DateTimeOffset.UtcNow;
     }
 
-    // ── Success factories ────────────────────────────────────────────────
+    // ── Success factories
     public static ApiResponse<TData> Ok(
         TData data,
         string? message = null,
         string? correlationId = null)
-        => new(true, StatusCodes.Status200OK, message, data, null, correlationId);
+        => new(true, StatusCodes.Status200OK, message ?? "The request was successful.", data, null, correlationId);
 
     public static ApiResponse<TData> Created(
         TData data,
@@ -62,7 +61,7 @@ public sealed class ApiResponse<TData>
     public static ApiResponse<TData> NoContent(string? correlationId = null)
         => new(true, StatusCodes.Status204NoContent, null, default, null, correlationId);
 
-    // ── Failure factories ────────────────────────────────────────────────
+    // ── Failure factories
     public static ApiResponse<TData> BadRequest(
         string message,
         IEnumerable<ApiError>? errors = null,
@@ -94,7 +93,7 @@ public sealed class ApiResponse<TData>
         => new(false, StatusCodes.Status422UnprocessableEntity,
                "Validation failed.", default, errors.ToList(), correlationId);
 
-    // ── Internal helpers ─────────────────────────────────────────────────
+    // ── Internal helper
     private ApiResponse<TData> WithLocation(string location)
     {
         // caller adds the HTTP Location header; here we merely stash it
@@ -104,7 +103,7 @@ public sealed class ApiResponse<TData>
 }
 
 /// <summary>
-/// Convenience non-generic façade so callers can write ApiResponse.Ok(...) without a type arg.
+/// Convenience non-generic façade so callers can write ApiResponse.Ok() without a type arg.
 /// </summary>
 public static class ApiResponse
 {

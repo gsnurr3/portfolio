@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Diagnostics;
 namespace RESTfulAPI.Presentation.Middleware;
 
 /// <summary>
-/// Adds a single gateway for *all* unhandled exceptions (MVC, MediatR,
+/// Adds a single gateway for all unhandled exceptions (MVC, MediatR,
 /// static-file pipeline, everything) and converts them into ApiResponse envelopes.
 /// </summary>
 public static class ExceptionHandlingExtensions
@@ -23,10 +23,10 @@ public static class ExceptionHandlingExtensions
                 var log = ctx.RequestServices.GetRequiredService<ILoggerFactory>()
                                              .CreateLogger("GlobalException");
 
-                // 1️⃣  Log first – always do this before you mutate the response
+                // Log first – always do this before mutating the response
                 log.LogError(ex, "Unhandled exception");
 
-                // 2️⃣  Map exception → ApiResponse envelope
+                // Map exception → ApiResponse envelope
                 ApiResponse<object?> envelope = ex switch
                 {
                     // FluentValidation – 422
@@ -45,11 +45,11 @@ public static class ExceptionHandlingExtensions
                     // 400 (argument / domain rule breaches)
                     ArgumentException ae => ApiResponse.BadRequest(ae.Message),
 
-                    // Everything else → 500
+                    // Everything else - 500
                     _ => BuildGenericError(env, ex)
                 };
 
-                // 3️⃣  Craft the HTTP response
+                // Craft the HTTP response
                 ctx.Response.StatusCode = envelope.Status;
                 ctx.Response.ContentType = "application/json";
                 await ctx.Response.WriteAsJsonAsync(envelope);

@@ -33,7 +33,7 @@ public sealed class ValidationBehavior<TReq, TRes>
             {
                 _log.LogWarning("Validation failed for {Request}: {@Failures}",
                                 typeof(TReq).Name, failures);
-                throw new ValidationException(failures);  // <-- caught by middleware
+                throw new ValidationException(failures);  // <-- caught by middleware (ExceptionHandlingExtensions)
             }
         }
 
