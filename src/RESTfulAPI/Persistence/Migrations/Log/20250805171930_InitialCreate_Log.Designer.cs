@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace RESTfulAPI.Persistence.Migrations.Log
 {
     [DbContext(typeof(LogDbContext))]
-    [Migration("20250804181218_InitialCreate_Log")]
+    [Migration("20250805171930_InitialCreate_Log")]
     partial class InitialCreate_Log
     {
         /// <inheritdoc />
