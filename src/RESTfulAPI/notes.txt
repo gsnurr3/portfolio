@@ -3,3 +3,49 @@ Open PowerShell with Admin
 cd "P:\Code Porfolio\portfolio\src\RESTfulAPI\"
 dotnet publish -c Release -o out --no-restore
 robocopy .\out\  C:\inetpub\RESTfulAPI  /MIR /NFL /NDL /XF web.config
+
+Azure Database Production To-Do:
+1. Connectivity Method: Move to private endpoint when VNet / Private Link setup
+2. Current Client IP: Remove home IP once jump box or bastion host setup
+3. MS Defender for SQL: Turn on for production
+4. Ledger: Turn on for immutable blockchain-style (financial, supply-chain, etc.)
+5. Server identity: Enable to call other Azure resources
+6. Transparent Data Encryption: Managed key by Azure Key Vault
+7. Always Encrypted: Turn on for PII
+8. Tags: Can be created for creating filters / groups, such as per environment, project, etc.
+
+Azure CLI Login:
+1. Run Powershell in Admin
+2. az login 
+
+Initial EF Core Migration:
+
+    AppDbContext:
+    dotnet ef migrations add InitialCreate_App --context AppDbContext --output-dir Persistence/Migrations/App -s src/RESTfulAPI -p src/RESTfulAPI
+    dotnet ef database update --context AppDbContext -s src/RESTfulAPI -p src/RESTfulAPI
+
+    LogDbContext:
+    dotnet ef migrations add InitialCreate_Log --context LogDbContext --output-dir Persistence/Migrations/Log -s src/RESTfulAPI -p src/RESTfulAPI
+    dotnet ef database update --context LogDbContext -s src/RESTfulAPI -p src/RESTfulAPI
+
+Push DB Changes to Azure DB:
+1. Add & Commit:
+
+dotnet ef migrations add AddNewColumn 
+git add Persistence/Migrations 
+git commit -m "Initial Creation"
+
+2. Produce idempotent SQL script:
+
+dotnet ef migrations script --context AppDbContext --output ./deploy/01-AppDb-migrations.sql --idempotent
+
+3. Review AppDb-migrations.sql under /deploy
+
+4. Deploy
+
+az login --use-device-code --tenant df5a51fd-34f1-4f7f-8dd6-967ccaac0efc
+
+# Example using Azure CLI + sqlcmd in a pipeline step
+az sql db show-connection-string --client ado.net --server portfolio-sql-server-84 --name portfolio-db
+
+sqlcmd -S tcp:portfolio-sql-server-84.database.windows.net,1433 -d portfolio-db -G -i deploy/01-AppDb-migrations.sql

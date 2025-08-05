@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ApplicationModels;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Identity.Web;
 using Microsoft.OpenApi.Models;
 using RESTfulAPI.Application.Behaviors;
@@ -21,6 +22,20 @@ Log.Logger = new LoggerConfiguration()
     .CreateLogger();
 
 builder.Host.UseSerilog();   // plug Serilog into ASP.NET logging
+
+var sql = builder.Environment.IsDevelopment()
+    ? builder.Configuration.GetConnectionString("Sql")
+    : builder.Configuration["AZURE_SQL_CONNECTIONSTRING"];
+
+builder.Services.AddDbContext<AppDbContext>(o =>
+    o.UseSqlServer(sql,
+        b => b.MigrationsAssembly(typeof(AppDbContext).Assembly.FullName)
+              .MigrationsHistoryTable("__EFMigrationsHistory_App", "app")));
+
+builder.Services.AddDbContext<LogDbContext>(o =>
+    o.UseSqlServer(sql,
+        b => b.MigrationsAssembly(typeof(LogDbContext).Assembly.FullName)
+              .MigrationsHistoryTable("__EFMigrationsHistory_Log", "log")));
 
 // CORS
 builder.Services.AddCors(opts =>

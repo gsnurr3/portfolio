@@ -1,6 +1,6 @@
 using MediatR;
 
-public class PingHandler : IRequestHandler<PingRequest, PingResponse>
+public class PingHandler(LogDbContext _logContext) : IRequestHandler<PingRequest, PingResponse>
 {
     async Task<PingResponse> IRequestHandler<PingRequest, PingResponse>.Handle(PingRequest request, CancellationToken cancellationToken)
     {
@@ -9,6 +9,15 @@ public class PingHandler : IRequestHandler<PingRequest, PingResponse>
         response.MessageOne = request.MessageOne.ToUpperInvariant();
         response.MessageTwo = request.MessageTwo.ToLowerInvariant();
         response.MessageThree = request.MessageThree;
+
+        _logContext.AppLogs.Add(new AppLog
+        {
+            Id = new Guid(),
+            Message = "This is a test",
+            Timestamp = DateTimeOffset.UtcNow
+        });
+
+        await _logContext.SaveChangesAsync();
 
         return await Task.FromResult(response);
     }

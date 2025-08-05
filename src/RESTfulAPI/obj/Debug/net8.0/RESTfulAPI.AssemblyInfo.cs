@@ -10,10 +10,11 @@
 using System;
 using System.Reflection;
 
+[assembly: Microsoft.Extensions.Configuration.UserSecrets.UserSecretsIdAttribute("809021aa-878c-4ffc-9064-11ea29a8d90f")]
 [assembly: System.Reflection.AssemblyCompanyAttribute("RESTfulAPI")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+fcbfbcc74b77ca75487bf846fd28da59e1994f82")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+9b36e423cd0ddd5af40a5f4214e15aef83463cc2")]
 [assembly: System.Reflection.AssemblyProductAttribute("RESTfulAPI")]
 [assembly: System.Reflection.AssemblyTitleAttribute("RESTfulAPI")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

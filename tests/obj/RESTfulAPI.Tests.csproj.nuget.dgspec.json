@@ -55,6 +55,16 @@
               "target": "Package",
               "version": "[12.1.1, )"
             },
+            "Microsoft.EntityFrameworkCore.Design": {
+              "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[9.0.7, )"
+            },
+            "Microsoft.EntityFrameworkCore.SqlServer": {
+              "target": "Package",
+              "version": "[9.0.7, )"
+            },
             "Microsoft.Identity.Web": {
               "target": "Package",
               "version": "[3.10.0, )"
@@ -82,6 +92,10 @@
             "Serilog.Sinks.File": {
               "target": "Package",
               "version": "[7.0.0, )"
+            },
+            "Serilog.Sinks.MSSqlServer": {
+              "target": "Package",
+              "version": "[8.2.2, )"
             },
             "Swashbuckle.AspNetCore": {
               "target": "Package",
