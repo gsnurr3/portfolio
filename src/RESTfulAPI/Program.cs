@@ -23,9 +23,15 @@ Log.Logger = new LoggerConfiguration()
 
 builder.Host.UseSerilog();   // plug Serilog into ASP.NET logging
 
-var sql = builder.Environment.IsDevelopment()
-    ? builder.Configuration.GetConnectionString("Sql")
-    : builder.Configuration["AZURE_SQL_CONNECTIONSTRING"];
+string connectionString = Environment.GetEnvironmentVariable("Sql")!;
+
+string connectionString1 = Environment.GetEnvironmentVariable("AZURE_SQL_CONNECTIONSTRING")!;
+
+var sql = builder.Configuration.GetConnectionString("Sql");
+
+var sql1 = builder.Configuration.GetConnectionString("AZURE_SQL_CONNECTIONSTRING");
+
+var conn = builder.Configuration["AZURE_SQL_CONNECTIONSTRING"];
 
 builder.Services.AddDbContext<AppDbContext>(o =>
     o.UseSqlServer(sql,

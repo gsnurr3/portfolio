@@ -11,6 +11,7 @@
           "FluentValidation": "12.0.0",
           "FluentValidation.AspNetCore": "11.3.1",
           "MediatR": "12.1.1",
+          "Microsoft.Data.SqlClient": "6.0.2",
           "Microsoft.EntityFrameworkCore.Design": "9.0.7",
           "Microsoft.EntityFrameworkCore.SqlServer": "9.0.7",
           "Microsoft.Identity.Web": "3.10.0",
@@ -210,6 +211,14 @@
           "lib/netstandard2.1/Microsoft.Bcl.AsyncInterfaces.dll": {
             "assemblyVersion": "7.0.0.0",
             "fileVersion": "7.0.22.51805"
+          }
+        }
+      },
+      "Microsoft.Bcl.Cryptography/8.0.0": {
+        "runtime": {
+          "lib/net8.0/Microsoft.Bcl.Cryptography.dll": {
+            "assemblyVersion": "8.0.0.0",
+            "fileVersion": "8.0.23.53103"
           }
         }
       },
@@ -501,24 +510,28 @@
           }
         }
       },
-      "Microsoft.Data.SqlClient/5.2.3": {
+      "Microsoft.Data.SqlClient/6.0.2": {
         "dependencies": {
           "Azure.Identity": "1.11.4",
-          "Microsoft.Data.SqlClient.SNI.runtime": "5.2.0",
-          "Microsoft.Identity.Client": "4.73.1",
+          "Microsoft.Bcl.Cryptography": "8.0.0",
+          "Microsoft.Data.SqlClient.SNI.runtime": "6.0.2",
+          "Microsoft.Extensions.Caching.Memory": "9.0.7",
           "Microsoft.IdentityModel.JsonWebTokens": "8.12.1",
           "Microsoft.IdentityModel.Protocols.OpenIdConnect": "8.12.1",
           "Microsoft.SqlServer.Server": "1.0.0",
           "System.Configuration.ConfigurationManager": "8.0.1",
-          "System.Runtime.Caching": "8.0.0"
+          "System.Security.Cryptography.Pkcs": "8.0.1"
         },
         "runtime": {
           "lib/net8.0/Microsoft.Data.SqlClient.dll": {
-            "assemblyVersion": "5.0.0.0",
-            "fileVersion": "5.23.25118.4"
+            "assemblyVersion": "6.0.0.0",
+            "fileVersion": "6.2.25115.4"
           }
         },
         "resources": {
+          "lib/net8.0/cs/Microsoft.Data.SqlClient.resources.dll": {
+            "locale": "cs"
+          },
           "lib/net8.0/de/Microsoft.Data.SqlClient.resources.dll": {
             "locale": "de"
           },
@@ -537,11 +550,17 @@
           "lib/net8.0/ko/Microsoft.Data.SqlClient.resources.dll": {
             "locale": "ko"
           },
+          "lib/net8.0/pl/Microsoft.Data.SqlClient.resources.dll": {
+            "locale": "pl"
+          },
           "lib/net8.0/pt-BR/Microsoft.Data.SqlClient.resources.dll": {
             "locale": "pt-BR"
           },
           "lib/net8.0/ru/Microsoft.Data.SqlClient.resources.dll": {
             "locale": "ru"
+          },
+          "lib/net8.0/tr/Microsoft.Data.SqlClient.resources.dll": {
+            "locale": "tr"
           },
           "lib/net8.0/zh-Hans/Microsoft.Data.SqlClient.resources.dll": {
             "locale": "zh-Hans"
@@ -554,38 +573,33 @@
           "runtimes/unix/lib/net8.0/Microsoft.Data.SqlClient.dll": {
             "rid": "unix",
             "assetType": "runtime",
-            "assemblyVersion": "5.0.0.0",
-            "fileVersion": "5.23.25118.4"
+            "assemblyVersion": "6.0.0.0",
+            "fileVersion": "6.2.25115.4"
           },
           "runtimes/win/lib/net8.0/Microsoft.Data.SqlClient.dll": {
             "rid": "win",
             "assetType": "runtime",
-            "assemblyVersion": "5.0.0.0",
-            "fileVersion": "5.23.25118.4"
+            "assemblyVersion": "6.0.0.0",
+            "fileVersion": "6.2.25115.4"
           }
         }
       },
-      "Microsoft.Data.SqlClient.SNI.runtime/5.2.0": {
+      "Microsoft.Data.SqlClient.SNI.runtime/6.0.2": {
         "runtimeTargets": {
-          "runtimes/win-arm/native/Microsoft.Data.SqlClient.SNI.dll": {
-            "rid": "win-arm",
-            "assetType": "native",
-            "fileVersion": "5.2.0.0"
-          },
           "runtimes/win-arm64/native/Microsoft.Data.SqlClient.SNI.dll": {
             "rid": "win-arm64",
             "assetType": "native",
-            "fileVersion": "5.2.0.0"
+            "fileVersion": "6.2.0.0"
           },
           "runtimes/win-x64/native/Microsoft.Data.SqlClient.SNI.dll": {
             "rid": "win-x64",
             "assetType": "native",
-            "fileVersion": "5.2.0.0"
+            "fileVersion": "6.2.0.0"
           },
           "runtimes/win-x86/native/Microsoft.Data.SqlClient.SNI.dll": {
             "rid": "win-x86",
             "assetType": "native",
-            "fileVersion": "5.2.0.0"
+            "fileVersion": "6.2.0.0"
           }
         }
       },
@@ -651,7 +665,7 @@
       },
       "Microsoft.EntityFrameworkCore.SqlServer/9.0.7": {
         "dependencies": {
-          "Microsoft.Data.SqlClient": "5.2.3",
+          "Microsoft.Data.SqlClient": "6.0.2",
           "Microsoft.EntityFrameworkCore.Relational": "9.0.7",
           "Microsoft.Extensions.Caching.Memory": "9.0.7",
           "Microsoft.Extensions.Configuration.Abstractions": "9.0.7",
@@ -963,7 +977,7 @@
           "Microsoft.Identity.Client": "4.73.1",
           "Microsoft.Identity.Web.Diagnostics": "3.10.0",
           "System.Formats.Asn1": "9.0.7",
-          "System.Security.Cryptography.Pkcs": "8.0.0",
+          "System.Security.Cryptography.Pkcs": "8.0.1",
           "System.Security.Cryptography.Xml": "8.0.1"
         },
         "runtime": {
@@ -1224,7 +1238,7 @@
       },
       "Serilog.Sinks.MSSqlServer/8.2.2": {
         "dependencies": {
-          "Microsoft.Data.SqlClient": "5.2.3",
+          "Microsoft.Data.SqlClient": "6.0.2",
           "Microsoft.Extensions.Configuration": "8.0.0",
           "Microsoft.Extensions.Options.ConfigurationExtensions": "8.0.0",
           "Microsoft.Identity.Client": "4.73.1",
@@ -1440,29 +1454,21 @@
           "System.Collections.Immutable": "7.0.0"
         }
       },
-      "System.Runtime.Caching/8.0.0": {
-        "dependencies": {
-          "System.Configuration.ConfigurationManager": "8.0.1"
-        },
+      "System.Runtime.CompilerServices.Unsafe/6.0.0": {},
+      "System.Security.Cryptography.Pkcs/8.0.1": {
         "runtime": {
-          "lib/net8.0/System.Runtime.Caching.dll": {
+          "lib/net8.0/System.Security.Cryptography.Pkcs.dll": {
             "assemblyVersion": "8.0.0.0",
-            "fileVersion": "8.0.23.53103"
+            "fileVersion": "8.0.1024.46610"
           }
         },
         "runtimeTargets": {
-          "runtimes/win/lib/net8.0/System.Runtime.Caching.dll": {
+          "runtimes/win/lib/net8.0/System.Security.Cryptography.Pkcs.dll": {
             "rid": "win",
             "assetType": "runtime",
             "assemblyVersion": "8.0.0.0",
-            "fileVersion": "8.0.23.53103"
+            "fileVersion": "8.0.1024.46610"
           }
-        }
-      },
-      "System.Runtime.CompilerServices.Unsafe/6.0.0": {},
-      "System.Security.Cryptography.Pkcs/8.0.0": {
-        "dependencies": {
-          "System.Formats.Asn1": "9.0.7"
         }
       },
       "System.Security.Cryptography.ProtectedData/8.0.0": {
@@ -1475,7 +1481,7 @@
       },
       "System.Security.Cryptography.Xml/8.0.1": {
         "dependencies": {
-          "System.Security.Cryptography.Pkcs": "8.0.0"
+          "System.Security.Cryptography.Pkcs": "8.0.1"
         },
         "runtime": {
           "lib/net8.0/System.Security.Cryptography.Xml.dll": {
@@ -1634,6 +1640,13 @@
       "path": "microsoft.bcl.asyncinterfaces/7.0.0",
       "hashPath": "microsoft.bcl.asyncinterfaces.7.0.0.nupkg.sha512"
     },
+    "Microsoft.Bcl.Cryptography/8.0.0": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-Y3t/c7C5XHJGFDnohjf1/9SYF3ZOfEU1fkNQuKg/dGf9hN18yrQj2owHITGfNS3+lKJdW6J4vY98jYu57jCO8A==",
+      "path": "microsoft.bcl.cryptography/8.0.0",
+      "hashPath": "microsoft.bcl.cryptography.8.0.0.nupkg.sha512"
+    },
     "Microsoft.Build.Framework/17.8.3": {
       "type": "package",
       "serviceable": true,
@@ -1690,19 +1703,19 @@
       "path": "microsoft.codeanalysis.workspaces.msbuild/4.8.0",
       "hashPath": "microsoft.codeanalysis.workspaces.msbuild.4.8.0.nupkg.sha512"
     },
-    "Microsoft.Data.SqlClient/5.2.3": {
+    "Microsoft.Data.SqlClient/6.0.2": {
       "type": "package",
       "serviceable": true,
-      "sha512": "sha512-KtBQ2ZmPrGwIe8W8n3urW8hyDrPQgyNg7sE7T70zi5+Tdre5r5e7aAYMsJTRIKq8Y+wZB4UAfAAnUlK728xWOg==",
-      "path": "microsoft.data.sqlclient/5.2.3",
-      "hashPath": "microsoft.data.sqlclient.5.2.3.nupkg.sha512"
+      "sha512": "sha512-RDqwzNu5slSqGy0eSgnN4fuLdGI1w9ZHBRNALrbUsykOIbXtGCpyotG0r5zz+HHtzxbe6LtcAyWcOiu0a+Fx/A==",
+      "path": "microsoft.data.sqlclient/6.0.2",
+      "hashPath": "microsoft.data.sqlclient.6.0.2.nupkg.sha512"
     },
-    "Microsoft.Data.SqlClient.SNI.runtime/5.2.0": {
+    "Microsoft.Data.SqlClient.SNI.runtime/6.0.2": {
       "type": "package",
       "serviceable": true,
-      "sha512": "sha512-po1jhvFd+8pbfvJR/puh+fkHi0GRanAdvayh/0e47yaM6CXWZ6opUjCMFuYlAnD2LcbyvQE7fPJKvogmaUcN+w==",
-      "path": "microsoft.data.sqlclient.sni.runtime/5.2.0",
-      "hashPath": "microsoft.data.sqlclient.sni.runtime.5.2.0.nupkg.sha512"
+      "sha512": "sha512-f+pRODTWX7Y67jXO3T5S2dIPZ9qMJNySjlZT/TKmWVNWe19N8jcWmHaqHnnchaq3gxEKv1SWVY5EFzOD06l41w==",
+      "path": "microsoft.data.sqlclient.sni.runtime/6.0.2",
+      "hashPath": "microsoft.data.sqlclient.sni.runtime.6.0.2.nupkg.sha512"
     },
     "Microsoft.EntityFrameworkCore/9.0.7": {
       "type": "package",
@@ -2250,13 +2263,6 @@
       "path": "system.reflection.metadata/7.0.0",
       "hashPath": "system.reflection.metadata.7.0.0.nupkg.sha512"
     },
-    "System.Runtime.Caching/8.0.0": {
-      "type": "package",
-      "serviceable": true,
-      "sha512": "sha512-4TmlmvGp4kzZomm7J2HJn6IIx0UUrQyhBDyb5O1XiunZlQImXW+B8b7W/sTPcXhSf9rp5NR5aDtQllwbB5elOQ==",
-      "path": "system.runtime.caching/8.0.0",
-      "hashPath": "system.runtime.caching.8.0.0.nupkg.sha512"
-    },
     "System.Runtime.CompilerServices.Unsafe/6.0.0": {
       "type": "package",
       "serviceable": true,
@@ -2264,12 +2270,12 @@
       "path": "system.runtime.compilerservices.unsafe/6.0.0",
       "hashPath": "system.runtime.compilerservices.unsafe.6.0.0.nupkg.sha512"
     },
-    "System.Security.Cryptography.Pkcs/8.0.0": {
+    "System.Security.Cryptography.Pkcs/8.0.1": {
       "type": "package",
       "serviceable": true,
-      "sha512": "sha512-ULmp3xoOwNYjOYp4JZ2NK/6NdTgiN1GQXzVVN1njQ7LOZ0d0B9vyMnhyqbIi9Qw4JXj1JgCsitkTShboHRx7Eg==",
-      "path": "system.security.cryptography.pkcs/8.0.0",
-      "hashPath": "system.security.cryptography.pkcs.8.0.0.nupkg.sha512"
+      "sha512": "sha512-CoCRHFym33aUSf/NtWSVSZa99dkd0Hm7OCZUxORBjRB16LNhIEOf8THPqzIYlvKM0nNDAPTRBa1FxEECrgaxxA==",
+      "path": "system.security.cryptography.pkcs/8.0.1",
+      "hashPath": "system.security.cryptography.pkcs.8.0.1.nupkg.sha512"
     },
     "System.Security.Cryptography.ProtectedData/8.0.0": {
       "type": "package",
