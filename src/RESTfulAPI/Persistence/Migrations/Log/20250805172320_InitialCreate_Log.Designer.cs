@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace RESTfulAPI.Persistence.Migrations.Log
 {
     [DbContext(typeof(LogDbContext))]
-    [Migration("20250805171930_InitialCreate_Log")]
+    [Migration("20250805172320_InitialCreate_Log")]
     partial class InitialCreate_Log
     {
         /// <inheritdoc />
@@ -19,6 +19,7 @@ namespace RESTfulAPI.Persistence.Migrations.Log
         {
 #pragma warning disable 612, 618
             modelBuilder
+                .HasDefaultSchema("log")
                 .HasAnnotation("ProductVersion", "9.0.7")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
@@ -39,7 +40,7 @@ namespace RESTfulAPI.Persistence.Migrations.Log
 
                     b.HasKey("Id");
 
-                    b.ToTable("AppLogs");
+                    b.ToTable("AppLogs", "log");
                 });
 #pragma warning restore 612, 618
         }

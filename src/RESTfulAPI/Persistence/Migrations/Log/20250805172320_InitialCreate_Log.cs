@@ -11,8 +11,12 @@ namespace RESTfulAPI.Persistence.Migrations.Log
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.EnsureSchema(
+                name: "log");
+
             migrationBuilder.CreateTable(
                 name: "AppLogs",
+                schema: "log",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
@@ -29,7 +33,8 @@ namespace RESTfulAPI.Persistence.Migrations.Log
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "AppLogs");
+                name: "AppLogs",
+                schema: "log");
         }
     }
 }

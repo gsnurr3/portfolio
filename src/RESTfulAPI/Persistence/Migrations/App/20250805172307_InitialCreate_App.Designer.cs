@@ -10,7 +10,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace RESTfulAPI.Persistence.Migrations.App
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250805171912_InitialCreate_App")]
+    [Migration("20250805172307_InitialCreate_App")]
     partial class InitialCreate_App
     {
         /// <inheritdoc />

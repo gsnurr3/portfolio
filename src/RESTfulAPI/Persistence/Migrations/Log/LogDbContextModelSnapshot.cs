@@ -16,6 +16,7 @@ namespace RESTfulAPI.Persistence.Migrations.Log
         {
 #pragma warning disable 612, 618
             modelBuilder
+                .HasDefaultSchema("log")
                 .HasAnnotation("ProductVersion", "9.0.7")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
@@ -36,7 +37,7 @@ namespace RESTfulAPI.Persistence.Migrations.Log
 
                     b.HasKey("Id");
 
-                    b.ToTable("AppLogs");
+                    b.ToTable("AppLogs", "log");
                 });
 #pragma warning restore 612, 618
         }
