@@ -67,12 +67,12 @@ jobs:
           DOTNET_ENVIRONMENT: Production
           ConnectionStrings__AzureSql: ${{ secrets.PROD_SQL_CONN }}
         run: |
-          # install EF CLI & update PATH
-          dotnet tool install --global dotnet-ef --version 8.* 
-          export PATH="$PATH:$HOME/.dotnet/tools"
+          # Install the EF Core global tool & expose its binary
+          dotnet tool install --global dotnet-ef --version 8.*
+          export PATH="$HOME/.dotnet/tools:$PATH"
 
-          # run migrations
-          dotnet ef database update \
+          # Invoke migrations via the installed tool
+          dotnet-ef database update \
             --context AppDbContext \
             --project src/RESTfulAPI \
             --startup-project src/RESTfulAPI
@@ -83,12 +83,12 @@ jobs:
           DOTNET_ENVIRONMENT: Production
           ConnectionStrings__AzureSql: ${{ secrets.PROD_SQL_CONN }}
         run: |
-          # install EF CLI & update PATH
-          dotnet tool install --global dotnet-ef --version 8.* 
-          export PATH="$PATH:$HOME/.dotnet/tools"
+          # Install the EF Core global tool & expose its binary
+          dotnet tool install --global dotnet-ef --version 8.*
+          export PATH="$HOME/.dotnet/tools:$PATH"
 
-          # run migrations
-          dotnet ef database update \
+          # Invoke migrations via the installed tool
+          dotnet-ef database update \
             --context LogDbContext \
             --project src/RESTfulAPI \
             --startup-project src/RESTfulAPI
