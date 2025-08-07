@@ -1,11 +1,14 @@
 using Microsoft.EntityFrameworkCore;
 
-public sealed class AppDbContext : DbContext
+namespace RESTfulAPI.Persistence
 {
-    public AppDbContext(DbContextOptions<AppDbContext> o) : base(o) { }
-
-    protected override void OnModelCreating(ModelBuilder builder)
+    public sealed class AppDbContext : DbContext
     {
-        builder.ApplyConfigurationsFromAssembly(typeof(AppDbContext).Assembly);
+        public AppDbContext(DbContextOptions<AppDbContext> o) : base(o) { }
+
+        protected override void OnModelCreating(ModelBuilder builder)
+        {
+            builder.ApplyConfigurationsFromAssembly(typeof(AppDbContext).Assembly);
+        }
     }
 }

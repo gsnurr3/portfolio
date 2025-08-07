@@ -1,5 +1,11 @@
-public class SlugifyParameterTransformer : IOutboundParameterTransformer
+namespace RESTfulAPI.Presentation.Conventions
 {
-    public string? TransformOutbound(object? value)
-        => value?.ToString()?.ToLowerInvariant();
+    /// <summary>
+    /// Transforms outbound route parameter values into a URL-friendly “slug” by converting them to lowercase.
+    /// </summary>
+    public class SlugifyParameterTransformer : IOutboundParameterTransformer
+    {
+        public string? TransformOutbound(object? value)
+            => value?.ToString()?.ToLowerInvariant();
+    }
 }

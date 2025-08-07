@@ -1,8 +1,12 @@
 using MediatR;
+using RESTfulAPI.Presentation.Responses;
 
-public class PingRequest : IRequest<PingResponse>
+namespace RESTfulAPI.Application.Requests
 {
-    public string MessageOne { get; set; } = string.Empty;
-    public string MessageTwo { get; set; } = string.Empty;
-    public string MessageThree { get; set; } = string.Empty;
+    public class PingRequest : IRequest<PingResponse>
+    {
+        public string MessageOne { get; set; } = string.Empty;
+        public string MessageTwo { get; set; } = string.Empty;
+        public string MessageThree { get; set; } = string.Empty;
+    }
 }

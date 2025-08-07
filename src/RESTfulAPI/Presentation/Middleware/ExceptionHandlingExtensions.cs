@@ -1,5 +1,6 @@
 using FluentValidation;
 using Microsoft.AspNetCore.Diagnostics;
+using RESTfulAPI.Presentation.Common;
 
 namespace RESTfulAPI.Presentation.Middleware;
 

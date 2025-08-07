@@ -1,23 +1,30 @@
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using RESTfulAPI.Application.Requests;
+using RESTfulAPI.Presentation.Common;
+using RESTfulAPI.Presentation.Responses;
 
-[Authorize]
-[ApiController]
-[Route("[controller]")]
-public class PingController : ControllerBase
+namespace RESTfulAPI.Application.Controllers
 {
-    private readonly IMediator _mediator;
-    public PingController(IMediator mediator) => _mediator = mediator;
-
-    [HttpPost]
-    [Produces(typeof(ApiResponse<PingResponse>))]
-    public async Task<IActionResult> Ping([FromBody] PingRequest request, CancellationToken cancellationToken)
+    [Authorize]
+    [ApiController]
+    [Route("[controller]")]
+    public class PingController : ControllerBase
     {
-        var pingResponse = await _mediator.Send(request, cancellationToken);
+        private readonly IMediator _mediator;
+        public PingController(IMediator mediator) => _mediator = mediator;
 
-        return pingResponse is null
-            ? NotFound(ApiResponse.NotFound())
-            : Ok(ApiResponse.Ok(pingResponse));
+        [HttpPost]
+        [Produces(typeof(ApiResponse<PingResponse>))]
+        public async Task<IActionResult> Ping([FromBody] PingRequest request, CancellationToken cancellationToken)
+        {
+            var pingResponse = await _mediator.Send(request, cancellationToken);
+
+            return pingResponse is null
+                ? NotFound(ApiResponse.NotFound())
+                : Ok(ApiResponse.Ok(pingResponse));
+        }
     }
 }
+

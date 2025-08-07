@@ -1,24 +1,31 @@
 using MediatR;
+using RESTfulAPI.Application.Requests;
+using RESTfulAPI.Domain.Entities;
+using RESTfulAPI.Persistence;
+using RESTfulAPI.Presentation.Responses;
 
-public class PingHandler(LogDbContext _logContext) : IRequestHandler<PingRequest, PingResponse>
+namespace RESTfulAPI.Application.MediatR.Handlers
 {
-    async Task<PingResponse> IRequestHandler<PingRequest, PingResponse>.Handle(PingRequest request, CancellationToken cancellationToken)
+    public class PingHandler(LogDbContext _logContext) : IRequestHandler<PingRequest, PingResponse>
     {
-        var response = new PingResponse();
-
-        response.MessageOne = request.MessageOne.ToUpperInvariant();
-        response.MessageTwo = request.MessageTwo.ToLowerInvariant();
-        response.MessageThree = request.MessageThree;
-
-        _logContext.AppLogs.Add(new AppLog
+        async Task<PingResponse> IRequestHandler<PingRequest, PingResponse>.Handle(PingRequest request, CancellationToken cancellationToken)
         {
-            Id = new Guid(),
-            Message = "This is a test",
-            Timestamp = DateTimeOffset.UtcNow
-        });
+            var response = new PingResponse();
 
-        await _logContext.SaveChangesAsync();
+            response.MessageOne = request.MessageOne.ToUpperInvariant();
+            response.MessageTwo = request.MessageTwo.ToLowerInvariant();
+            response.MessageThree = request.MessageThree;
 
-        return await Task.FromResult(response);
+            _logContext.AppLogs.Add(new AppLog
+            {
+                Id = new Guid(),
+                Message = "This is a test for the interview.",
+                Timestamp = DateTimeOffset.UtcNow
+            });
+
+            await _logContext.SaveChangesAsync();
+
+            return await Task.FromResult(response);
+        }
     }
 }

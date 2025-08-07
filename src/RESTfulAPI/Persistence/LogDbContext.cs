@@ -1,15 +1,19 @@
 using Microsoft.EntityFrameworkCore;
+using RESTfulAPI.Domain.Entities;
 
-public sealed class LogDbContext : DbContext
+namespace RESTfulAPI.Persistence
 {
-    public LogDbContext(DbContextOptions<LogDbContext> o) : base(o) { }
-
-    public DbSet<AppLog> AppLogs => Set<AppLog>();
-
-    protected override void OnModelCreating(ModelBuilder builder)
+    public sealed class LogDbContext : DbContext
     {
-        builder.HasDefaultSchema("log");
-        builder.Entity<AppLog>()
-                .ToTable("AppLogs");
+        public LogDbContext(DbContextOptions<LogDbContext> o) : base(o) { }
+
+        public DbSet<AppLog> AppLogs => Set<AppLog>();
+
+        protected override void OnModelCreating(ModelBuilder builder)
+        {
+            builder.HasDefaultSchema("log");
+            builder.Entity<AppLog>()
+                    .ToTable("AppLogs");
+        }
     }
 }

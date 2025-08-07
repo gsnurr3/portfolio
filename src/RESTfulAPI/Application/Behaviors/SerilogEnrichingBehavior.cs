@@ -2,21 +2,29 @@ using System.Diagnostics;
 using MediatR;
 using Serilog.Context;
 
-namespace RESTfulAPI.Application.Behaviors;
-
-public class SerilogEnrichingBehavior<TReq, TRes> : IPipelineBehavior<TReq, TRes>
-    where TReq : notnull
+namespace RESTfulAPI.Application.Behaviors
 {
-    public async Task<TRes> Handle(
-        TReq request,
-        RequestHandlerDelegate<TRes> next,
-        CancellationToken ct)
+    /// <summary>
+    /// A MediatR pipeline behavior that enriches each request with Serilog log context properties.
+    /// Pushes the request’s type name as "RequestName" and the current Activity.TraceId as "CorrelationId".
+    /// Ensures these properties flow through all log entries produced during handling.
+    /// </summary>
+    public class SerilogEnrichingBehavior<TReq, TRes> : IPipelineBehavior<TReq, TRes>
+        where TReq : notnull
     {
-        using (LogContext.PushProperty("RequestName", typeof(TReq).Name))
-        using (LogContext.PushProperty("CorrelationId",
-               Activity.Current?.TraceId.ToString() ?? string.Empty))
+        public async Task<TRes> Handle(
+            TReq request,
+            RequestHandlerDelegate<TRes> next,
+            CancellationToken ct)
         {
-            return await next();
+            using (LogContext.PushProperty("RequestName", typeof(TReq).Name))
+            using (LogContext.PushProperty("CorrelationId",
+                   Activity.Current?.TraceId.ToString() ?? string.Empty))
+            {
+                return await next();
+            }
         }
     }
 }
+
+
