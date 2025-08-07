@@ -41,23 +41,19 @@ jobs:
       contents: read
 
     steps:
-      # 1) Get your source (for migrations)
-      - name: Checkout code
+      - name: Checkout code (for migrations)
         uses: actions/checkout@v4
 
-      # 2) Grab the published app (for deployment)
-      - name: Download artifact
+      - name: Download artifact (for deployment)
         uses: actions/download-artifact@v4
         with:
           name: .net-app
 
-      # 3) Set up .NET again in this job
       - name: Set up .NET Core
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '8.x'
 
-      # 4) Log into Azure
       - name: Login to Azure
         uses: azure/login@v2
         with:
@@ -65,38 +61,38 @@ jobs:
           tenant-id:       ${{ secrets.AZUREAPPSERVICE_TENANTID_52CC510A03C04BB08C710FDEF8392896 }}
           subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_3CFCA20D8D21481FBA2BF294169EF0B7 }}
 
-      # 5) Install the EF Core CLI so `dotnet ef` is available
-      - name: Install EF Core CLI
-        shell: bash
-        run: |
-          dotnet tool install --global dotnet-ef --version 8.* 
-          export PATH="$PATH:$HOME/.dotnet/tools"
-
-      # 6) Run AppDbContext migrations against your PROD DB
       - name: Apply AppDbContext migrations
         shell: bash
         env:
           DOTNET_ENVIRONMENT: Production
           ConnectionStrings__AzureSql: ${{ secrets.PROD_SQL_CONN }}
         run: |
+          # install EF CLI & update PATH
+          dotnet tool install --global dotnet-ef --version 8.* 
+          export PATH="$PATH:$HOME/.dotnet/tools"
+
+          # run migrations
           dotnet ef database update \
             --context AppDbContext \
             --project src/RESTfulAPI \
             --startup-project src/RESTfulAPI
 
-      # 7) Run LogDbContext migrations (creates log.AppLogs)
       - name: Apply LogDbContext migrations
         shell: bash
         env:
           DOTNET_ENVIRONMENT: Production
           ConnectionStrings__AzureSql: ${{ secrets.PROD_SQL_CONN }}
         run: |
+          # install EF CLI & update PATH
+          dotnet tool install --global dotnet-ef --version 8.* 
+          export PATH="$PATH:$HOME/.dotnet/tools"
+
+          # run migrations
           dotnet ef database update \
             --context LogDbContext \
             --project src/RESTfulAPI \
             --startup-project src/RESTfulAPI
 
-      # 8) Finally deploy the built app to Azure
       - name: Deploy to Azure Web App
         id: deploy-to-webapp
         uses: azure/webapps-deploy@v3
