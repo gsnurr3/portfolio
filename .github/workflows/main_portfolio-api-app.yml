@@ -21,13 +21,13 @@ jobs:
         with:
           dotnet-version: '8.x'
 
-      - name: Build with dotnet
+      - name: Build
         run: dotnet build --configuration Release
 
-      - name: Publish with dotnet
+      - name: Publish
         run: dotnet publish --configuration Release --output "${{ env.DOTNET_ROOT }}/myapp"
 
-      - name: Upload artifact for deployment job
+      - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: .net-app
@@ -41,7 +41,7 @@ jobs:
       contents: read
 
     steps:
-      - name: Download artifact from build job
+      - name: Download artifact
         uses: actions/download-artifact@v4
         with:
           name: .net-app
@@ -59,6 +59,7 @@ jobs:
           subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_3CFCA20D8D21481FBA2BF294169EF0B7 }}
 
       - name: Apply AppDbContext migrations
+        shell: bash
         env:
           DOTNET_ENVIRONMENT: Production
           ConnectionStrings__AzureSql: ${{ secrets.PROD_SQL_CONN }}
@@ -69,6 +70,7 @@ jobs:
             --startup-project src/RESTfulAPI
 
       - name: Apply LogDbContext migrations
+        shell: bash
         env:
           DOTNET_ENVIRONMENT: Production
           ConnectionStrings__AzureSql: ${{ secrets.PROD_SQL_CONN }}
@@ -82,6 +84,6 @@ jobs:
         id: deploy-to-webapp
         uses: azure/webapps-deploy@v3
         with:
-          app-name: 'portfolio-api-app'
-          slot-name: 'Production'
-          package: .
+          app-name:    'portfolio-api-app'
+          slot-name:   'Production'
+          package:     ${{ env.DOTNET_ROOT }}/myapp

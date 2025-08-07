@@ -21,31 +21,20 @@ Azure CLI Login:
 Initial EF Core Migration:
 
     AppDbContext:
-    dotnet ef migrations add InitialCreate_App --context AppDbContext --output-dir Persistence/Migrations/App -s src/RESTfulAPI -p src/RESTfulAPI
+    dotnet ef migrations add UpdateLogSchema_App --context AppDbContext --output-dir Persistence/Migrations/App -s src/RESTfulAPI -p src/RESTfulAPI
     dotnet ef database update --context AppDbContext -s src/RESTfulAPI -p src/RESTfulAPI
 
     LogDbContext:
-    dotnet ef migrations add InitialCreate_Log --context LogDbContext --output-dir Persistence/Migrations/Log -s src/RESTfulAPI -p src/RESTfulAPI
+    dotnet ef migrations add UpdateLogSchema_Log --context LogDbContext --output-dir Persistence/Migrations/Log -s src/RESTfulAPI -p src/RESTfulAPI
     dotnet ef database update --context LogDbContext -s src/RESTfulAPI -p src/RESTfulAPI
 
-Push DB Changes to Azure DB:
-1. Add & Commit:
+Point EF at your “Production” settings:
+$Env:ASPNETCORE_ENVIRONMENT = "Production"
+$Env:ConnectionStrings__AzureSql = "Server=tcp:portfolio-sql-server-84.database.windows.net;Initial Catalog=portfolio-db;Authentication=Active Directory Default;Encrypt=True;TrustServerCertificate=False"
 
-dotnet ef migrations add AddNewColumn 
-git add Persistence/Migrations 
-git commit -m "Initial Creation"
+Apply the AppDbContext migration
+dotnet ef database update --context AppDbContext --project src/RESTfulAPI --startup-project src/RESTfulAPI
 
-2. Produce idempotent SQL script:
+Apply the LogDbContext migration
+dotnet ef database update --context LogDbContext --project src/RESTfulAPI --startup-project src/RESTfulAPI
 
-dotnet ef migrations script --context AppDbContext --output ./deploy/01-AppDb-migrations.sql --idempotent
-
-3. Review AppDb-migrations.sql under /deploy
-
-4. Deploy
-
-az login --use-device-code --tenant df5a51fd-34f1-4f7f-8dd6-967ccaac0efc
-
-# Example using Azure CLI + sqlcmd in a pipeline step
-az sql db show-connection-string --client ado.net --server portfolio-sql-server-84 --name portfolio-db
-
-sqlcmd -S tcp:portfolio-sql-server-84.database.windows.net,1433 -d portfolio-db -G -i deploy/01-AppDb-migrations.sql
