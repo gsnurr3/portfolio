@@ -27,14 +27,3 @@ Initial EF Core Migration:
     LogDbContext:
     dotnet ef migrations add UpdateLogSchema_Log --context LogDbContext --output-dir Persistence/Migrations/Log -s src/RESTfulAPI -p src/RESTfulAPI
     dotnet ef database update --context LogDbContext -s src/RESTfulAPI -p src/RESTfulAPI
-
-Point EF at your “Production” settings:
-$Env:ASPNETCORE_ENVIRONMENT = "Production"
-$Env:ConnectionStrings__AzureSql = "Server=tcp:portfolio-sql-server-84.database.windows.net;Initial Catalog=portfolio-db;Authentication=Active Directory Default;Encrypt=True;TrustServerCertificate=False"
-
-Apply the AppDbContext migration
-dotnet ef database update --context AppDbContext --project src/RESTfulAPI --startup-project src/RESTfulAPI
-
-Apply the LogDbContext migration
-dotnet ef database update --context LogDbContext --project src/RESTfulAPI --startup-project src/RESTfulAPI
-
