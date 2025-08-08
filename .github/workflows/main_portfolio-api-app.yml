@@ -57,16 +57,19 @@ jobs:
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
       - name: Apply EF Core migrations
+        shell: pwsh
         working-directory: src/RESTfulAPI
+        env:
+          PROD_SQL_CONN: ${{ secrets.PROD_SQL_CONN }}
         run: |
-          # install EF CLI
+          # install the EF CLI as a global tool
           dotnet tool install --global dotnet-ef --version 8.*
-          # add it to PATH
+          # make sure the shim is on PATH
           $env:PATH += ";${env:USERPROFILE}\.dotnet\tools"
-          # run migrations against your prod DB
-          dotnet ef database update `
+          # now invoke migrations via the dotnet-ef tool
+          dotnet-ef database update `
             --context AppDbContext `
-            --connection "${{ secrets.PROD_SQL_CONN }}" `
+            --connection "${PROD_SQL_CONN}" `
             --project RESTfulAPI.csproj `
             --startup-project RESTfulAPI.csproj
 
