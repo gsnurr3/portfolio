@@ -1,32 +1,38 @@
 name: CI/CD API
 
-# must grant id-token write so azure/login@v2 can fetch the GitHub OIDC token
+# Permissions for the GITHUB_TOKEN used by this workflow.
+# - id-token: write -> REQUIRED for azure/login@v2 to perform OIDC federated auth
+# - contents: read -> lets actions/checkout read your repo
 permissions:
-  id-token: write       # <-- allows azure/login to get ACTIONS_ID_TOKEN_REQUEST_URL
-  contents: read        # <-- checkout needs read
+  id-token: write
+  contents: read
 
 on:
   push:
     branches:
-      - main
+      - main   # run this workflow only on pushes to the main branch
 
 jobs:
   build-and-deploy:
-    runs-on: windows-2022
+    runs-on: windows-2022   # use a Microsoft-hosted Windows runner
 
     steps:
+      # 1) Pulls your repo onto the runner so subsequent steps have the code
       - name: Checkout code
         uses: actions/checkout@v4
 
+      # 2) Installs the .NET 8 SDK on the runner so we can build/publish
       - name: Setup .NET 8.x
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: '8.x'
+          dotnet-version: '8.x'   # latest 8.x, includes SDK & runtime
 
+      # 3) Installs the EF Core CLI (dotnet-ef) so we can apply migrations
       - name: Install EF Core global tool
         shell: pwsh
         run: dotnet tool install --global dotnet-ef --version 8.*
 
+      # 4) Builds the API in Release and publishes artifacts into ./publish
       - name: Build & Publish API
         shell: pwsh
         run: |
@@ -35,35 +41,50 @@ jobs:
             --configuration Release `
             --output publish
 
+      # 5) Logs in to Azure using OIDC (no stored secret needed).
+      #    Pre-reqs:
+      #      - You created an Azure AD app/service principal
+      #      - You set up a Federated Credential in Entra ID for this repo/branch
+      #      - The SP has the right Azure roles (e.g., Contributor on the Web App)
       - name: Login to Azure with OIDC
         uses: azure/login@v2
         with:
-          client-id:       ${{ secrets.AZURE_CLIENT_ID }}
-          tenant-id:       ${{ secrets.AZURE_TENANT_ID }}
-          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          client-id:       ${{ secrets.AZURE_CLIENT_ID }}       # SP app (client) ID
+          tenant-id:       ${{ secrets.AZURE_TENANT_ID }}       # Entra ID tenant
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }} # Azure subscription
           environment:     azurecloud
           auth-type:       SERVICE_PRINCIPAL
 
+      # 6) Applies EF Core migrations to the Azure SQL database for BOTH contexts.
+      #    Notes:
+      #      - PROD_SQL_CONN is the full connection string stored in repo secrets.
+      #      - We add the dotnet global tools folder to PATH so 'dotnet-ef' works.
+      #      - Your SP / group must have permissions in SQL to create/alter schema.
       - name: Apply EF Core migrations (both contexts)
         shell: pwsh
         env:
-          PROD_SQL_CONN: ${{ secrets.PROD_SQL_CONN }}
+          PROD_SQL_CONN: ${{ secrets.PROD_SQL_CONN }} # keeps the connection string out of logs/repo
         run: |
           # ensure dotnet-ef is on the PATH
           $Env:PATH += ";${Env:USERPROFILE}\.dotnet\tools"
 
+          # Run migrations for the AppDbContext against the prod connection string
           dotnet-ef database update `
             --context AppDbContext `
             --connection $Env:PROD_SQL_CONN `
             --project src/RESTfulAPI/RESTfulAPI.csproj `
             --startup-project src/RESTfulAPI/RESTfulAPI.csproj
 
+          # Run migrations for the LogDbContext against the same database
           dotnet-ef database update `
             --context LogDbContext `
             --connection $Env:PROD_SQL_CONN `
             --project src/RESTfulAPI/RESTfulAPI.csproj `
             --startup-project src/RESTfulAPI/RESTfulAPI.csproj
 
+      # 7) Deploys the published build output to your Azure App Service.
+      #    - app-name is the Web App name (saved as a secret)
+      #    - package points to the folder we published to earlier
       - name: Deploy to Azure Web App
         uses: azure/webapps-deploy@v3
         with:
