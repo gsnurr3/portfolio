@@ -1,4 +1,4 @@
-name: Deploy API
+name: CI/CD API
 
 on:
   push:
@@ -6,17 +6,12 @@ on:
       - main
 
 jobs:
-  deploy:
+  build-and-deploy:
     runs-on: windows-2022
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-
-      - name: Download dotnet-app artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: dotnet-app
 
       - name: Setup .NET 8.x
         uses: actions/setup-dotnet@v4
@@ -27,6 +22,16 @@ jobs:
         shell: pwsh
         run: dotnet tool install --global dotnet-ef --version 8.*
 
+      - name: Build & Publish API
+        shell: pwsh
+        run: |
+          # Build in Release
+          dotnet build src/RESTfulAPI/RESTfulAPI.csproj --configuration Release
+          # Publish to ./publish
+          dotnet publish src/RESTfulAPI/RESTfulAPI.csproj `
+            --configuration Release `
+            --output publish
+
       - name: Login to Azure with OIDC
         uses: azure/login@v2
         with:
@@ -36,32 +41,30 @@ jobs:
           environment: azurecloud
           auth-type: service-principal
 
-      - name: Apply EF Core migrations (both contexts)
+      - name: Apply EF Core migrations (both DbContexts)
         shell: pwsh
-        working-directory: src/RESTfulAPI
         env:
-          # your connection string secret
           PROD_SQL_CONN: ${{ secrets.PROD_SQL_CONN }}
         run: |
-          # ensure dotnet-ef is on the PATH
+          # ensure dotnet-ef is on PATH
           $Env:PATH += ";${Env:USERPROFILE}\.dotnet\tools"
 
-          # migrate the main AppDbContext
+          # Main application database
           dotnet-ef database update `
             --context AppDbContext `
             --connection $Env:PROD_SQL_CONN `
-            --project RESTfulAPI.csproj `
-            --startup-project RESTfulAPI.csproj
+            --project src/RESTfulAPI/RESTfulAPI.csproj `
+            --startup-project src/RESTfulAPI/RESTfulAPI.csproj
 
-          # migrate the LogDbContext
+          # Logging database
           dotnet-ef database update `
             --context LogDbContext `
             --connection $Env:PROD_SQL_CONN `
-            --project RESTfulAPI.csproj `
-            --startup-project RESTfulAPI.csproj
+            --project src/RESTfulAPI/RESTfulAPI.csproj `
+            --startup-project src/RESTfulAPI/RESTfulAPI.csproj
 
       - name: Deploy to Azure Web App
         uses: azure/webapps-deploy@v3
         with:
           app-name: ${{ secrets.AZURE_WEBAPP_NAME }}
-          package: src/RESTfulAPI/bin/Release/net8.0/publish
+          package: publish
