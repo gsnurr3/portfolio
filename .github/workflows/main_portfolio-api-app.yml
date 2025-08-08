@@ -25,9 +25,7 @@ jobs:
       - name: Build & Publish API
         shell: pwsh
         run: |
-          # Build in Release
           dotnet build src/RESTfulAPI/RESTfulAPI.csproj --configuration Release
-          # Publish to ./publish
           dotnet publish src/RESTfulAPI/RESTfulAPI.csproj `
             --configuration Release `
             --output publish
@@ -35,28 +33,25 @@ jobs:
       - name: Login to Azure with OIDC
         uses: azure/login@v2
         with:
-          client-id: ${{ secrets.AZURE_CLIENT_ID }}
-          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          client-id:     ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id:     ${{ secrets.AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-          environment: azurecloud
-          auth-type: service-principal
+          environment:   azurecloud
+          auth-type:     SERVICE_PRINCIPAL
 
       - name: Apply EF Core migrations (both DbContexts)
         shell: pwsh
         env:
           PROD_SQL_CONN: ${{ secrets.PROD_SQL_CONN }}
         run: |
-          # ensure dotnet-ef is on PATH
           $Env:PATH += ";${Env:USERPROFILE}\.dotnet\tools"
 
-          # Main application database
           dotnet-ef database update `
             --context AppDbContext `
             --connection $Env:PROD_SQL_CONN `
             --project src/RESTfulAPI/RESTfulAPI.csproj `
             --startup-project src/RESTfulAPI/RESTfulAPI.csproj
 
-          # Logging database
           dotnet-ef database update `
             --context LogDbContext `
             --connection $Env:PROD_SQL_CONN `
