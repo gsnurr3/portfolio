@@ -13,6 +13,8 @@ using RESTfulAPI.Application.Filters;
 using RESTfulAPI.Application.Requests;
 using RESTfulAPI.Application.Validators;
 using RESTfulAPI.Infrastructure.Auth;
+using RESTfulAPI.Infrastructure.Repositories;
+using RESTfulAPI.Infrastructure.Repositories.Interfaces;
 using RESTfulAPI.Persistence;
 using RESTfulAPI.Presentation.Common;
 using RESTfulAPI.Presentation.Conventions;
@@ -176,15 +178,17 @@ builder.Services.AddSwaggerGen(opt =>
 });
 
 // ──────────────────────────────────────────────────────────────────────────────
-// 7) MediatR & FluentValidation pipeline behaviors
+// 7) MediatR & FluentValidation pipeline behaviors & DI
 //    - SerilogEnrichingBehavior adds RequestName/CorrelationId to log context
 //    - ValidationBehavior throws on any FluentValidation failures
 // ──────────────────────────────────────────────────────────────────────────────
-builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblyContaining<PingRequest>());
-builder.Services.AddValidatorsFromAssemblyContaining<PingRequestValidator>();
+builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblyContaining<PatientGetAllRequest>());
+builder.Services.AddValidatorsFromAssemblyContaining<PatientGetAllRequestValidator>();
 
 builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(SerilogEnrichingBehavior<,>));
 builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
+
+builder.Services.AddScoped<IPatientRepository, PatientRepository>();
 
 // ──────────────────────────────────────────────────────────────────────────────
 // 8) Build & run the app, wiring up exception handling, swagger, auth, CORS, etc.
