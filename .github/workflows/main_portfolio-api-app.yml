@@ -64,15 +64,16 @@ jobs:
       - name: Apply AppDbContext migrations
         shell: bash
         env:
-          DOTNET_ENVIRONMENT: Production
           ConnectionStrings__AzureSql: ${{ secrets.PROD_SQL_CONN }}
+          DOTNET_ENVIRONMENT: Production
         run: |
-          # Install the EF Core global tool & expose its binary
-          dotnet tool install --global dotnet-ef --version 8.*
+          # 1) Install EF tool and update PATH
+          dotnet tool install --global dotnet-ef --version 8.* 
           export PATH="$HOME/.dotnet/tools:$PATH"
 
-          # Invoke migrations via the installed tool
+          # 2) Run migrations with an explicit connection string
           dotnet-ef database update \
+            --connection "$ConnectionStrings__AzureSql" \
             --context AppDbContext \
             --project src/RESTfulAPI \
             --startup-project src/RESTfulAPI
@@ -80,15 +81,16 @@ jobs:
       - name: Apply LogDbContext migrations
         shell: bash
         env:
-          DOTNET_ENVIRONMENT: Production
           ConnectionStrings__AzureSql: ${{ secrets.PROD_SQL_CONN }}
+          DOTNET_ENVIRONMENT: Production
         run: |
-          # Install the EF Core global tool & expose its binary
-          dotnet tool install --global dotnet-ef --version 8.*
+          # 1) Install EF tool and update PATH
+          dotnet tool install --global dotnet-ef --version 8.* 
           export PATH="$HOME/.dotnet/tools:$PATH"
 
-          # Invoke migrations via the installed tool
+          # 2) Run migrations with an explicit connection string
           dotnet-ef database update \
+            --connection "$ConnectionStrings__AzureSql" \
             --context LogDbContext \
             --project src/RESTfulAPI \
             --startup-project src/RESTfulAPI
@@ -97,6 +99,6 @@ jobs:
         id: deploy-to-webapp
         uses: azure/webapps-deploy@v3
         with:
-          app-name:  'portfolio-api-app'
-          slot-name: 'Production'
-          package:   ${{ env.DOTNET_ROOT }}/myapp
+          app-name:    'portfolio-api-app'
+          slot-name:   'Production'
+          package:     ${{ env.DOTNET_ROOT }}/myapp
