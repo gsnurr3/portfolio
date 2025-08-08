@@ -1,5 +1,10 @@
 name: CI/CD API
 
+# must grant id-token write so azure/login@v2 can fetch the GitHub OIDC token
+permissions:
+  id-token: write       # <-- allows azure/login to get ACTIONS_ID_TOKEN_REQUEST_URL
+  contents: read        # <-- checkout needs read
+
 on:
   push:
     branches:
@@ -33,13 +38,13 @@ jobs:
       - name: Login to Azure with OIDC
         uses: azure/login@v2
         with:
-          client-id:     ${{ secrets.AZURE_CLIENT_ID }}
-          tenant-id:     ${{ secrets.AZURE_TENANT_ID }}
+          client-id:       ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id:       ${{ secrets.AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-          environment:   azurecloud
-          auth-type:     SERVICE_PRINCIPAL
+          environment:     azurecloud
+          auth-type:       SERVICE_PRINCIPAL
 
-      - name: Apply EF Core migrations (both DbContexts)
+      - name: Apply EF Core migrations (both contexts)
         shell: pwsh
         env:
           PROD_SQL_CONN: ${{ secrets.PROD_SQL_CONN }}
