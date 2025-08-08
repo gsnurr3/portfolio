@@ -16,7 +16,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Set up .NET Core
+      - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '8.x'
@@ -27,7 +27,7 @@ jobs:
       - name: Publish
         run: dotnet publish --configuration Release --output "${{ env.DOTNET_ROOT }}/myapp"
 
-      - name: Upload artifact
+      - name: Upload published app
         uses: actions/upload-artifact@v4
         with:
           name: dotnet-app
@@ -37,39 +37,42 @@ jobs:
     runs-on: windows-latest
     needs: build
     permissions:
-      id-token: write
       contents: read
+      id-token: write
 
     steps:
-      - name: Download artifact
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Download published artifact
         uses: actions/download-artifact@v4
         with:
           name: dotnet-app
 
-      - name: Install EF Core tool
-        run: dotnet tool install --global dotnet-ef --version 8.*
-
       - name: Login to Azure
         uses: azure/login@v2
         with:
-          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_9528EFAC17724C169359C043E6CBB6C9 }}
-          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_52CC510A03C04BB08C710FDEF8392896 }}
-          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_3CFCA20D8D21481FBA2BF294169EF0B7 }}
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
-      - name: Run EF Core migrations
-        shell: pwsh
+      - name: Apply EF Core migrations
+        working-directory: src/RESTfulAPI
         run: |
-          # Make sure dotnet-ef is on the PATH
+          # install EF CLI
+          dotnet tool install --global dotnet-ef --version 8.*
+          # add it to PATH
           $env:PATH += ";${env:USERPROFILE}\.dotnet\tools"
-          dotnet-ef database update `
+          # run migrations against your prod DB
+          dotnet ef database update `
             --context AppDbContext `
             --connection "${{ secrets.PROD_SQL_CONN }}" `
-            --project src/RESTfulAPI `
-            --startup-project src/RESTfulAPI
+            --project RESTfulAPI.csproj `
+            --startup-project RESTfulAPI.csproj
 
       - name: Deploy to Azure Web App
         uses: azure/webapps-deploy@v3
         with:
           app-name: 'portfolio-api-app'
           slot-name: 'Production'
-          package: .
+          package: ${{ env.DOTNET_ROOT }}/myapp
