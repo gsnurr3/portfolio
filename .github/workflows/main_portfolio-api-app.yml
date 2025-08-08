@@ -13,10 +13,9 @@ jobs:
       contents: read
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Set up .NET Core
+      - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '8.x'
@@ -41,20 +40,16 @@ jobs:
       contents: read
 
     steps:
-      - name: Checkout code (for migrations)
-        uses: actions/checkout@v4
-
-      - name: Download artifact (for deployment)
-        uses: actions/download-artifact@v4
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
         with:
           name: .net-app
 
-      - name: Set up .NET Core
-        uses: actions/setup-dotnet@v4
+      - uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '8.x'
 
-      - name: Login to Azure
+      - name: Azure Login
         uses: azure/login@v2
         with:
           client-id:       ${{ secrets.AZUREAPPSERVICE_CLIENTID_9528EFAC17724C169359C043E6CBB6C9 }}
@@ -64,16 +59,16 @@ jobs:
       - name: Apply AppDbContext migrations
         shell: bash
         env:
-          ConnectionStrings__AzureSql: ${{ secrets.PROD_SQL_CONN }}
           DOTNET_ENVIRONMENT: Production
+          AZURE_SQL_CONN:    ${{ secrets.PROD_SQL_CONN }}
         run: |
-          # 1) Install EF tool and update PATH
-          dotnet tool install --global dotnet-ef --version 8.* 
+          # install EF tool
+          dotnet tool install --global dotnet-ef --version 8.*
           export PATH="$HOME/.dotnet/tools:$PATH"
 
-          # 2) Run migrations with an explicit connection string
+          # run migrations against Azure SQL
           dotnet-ef database update \
-            --connection "$ConnectionStrings__AzureSql" \
+            --connection "$AZURE_SQL_CONN" \
             --context AppDbContext \
             --project src/RESTfulAPI \
             --startup-project src/RESTfulAPI
@@ -81,24 +76,21 @@ jobs:
       - name: Apply LogDbContext migrations
         shell: bash
         env:
-          ConnectionStrings__AzureSql: ${{ secrets.PROD_SQL_CONN }}
           DOTNET_ENVIRONMENT: Production
+          AZURE_SQL_CONN:    ${{ secrets.PROD_SQL_CONN }}
         run: |
-          # 1) Install EF tool and update PATH
-          dotnet tool install --global dotnet-ef --version 8.* 
+          dotnet tool install --global dotnet-ef --version 8.*
           export PATH="$HOME/.dotnet/tools:$PATH"
 
-          # 2) Run migrations with an explicit connection string
           dotnet-ef database update \
-            --connection "$ConnectionStrings__AzureSql" \
+            --connection "$AZURE_SQL_CONN" \
             --context LogDbContext \
             --project src/RESTfulAPI \
             --startup-project src/RESTfulAPI
 
       - name: Deploy to Azure Web App
-        id: deploy-to-webapp
         uses: azure/webapps-deploy@v3
         with:
-          app-name:    'portfolio-api-app'
-          slot-name:   'Production'
-          package:     ${{ env.DOTNET_ROOT }}/myapp
+          app-name:  'portfolio-api-app'
+          slot-name: 'Production'
+          package:   ${{ env.DOTNET_ROOT }}/myapp
