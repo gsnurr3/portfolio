@@ -18,12 +18,19 @@ Azure CLI Login:
 1. Run Powershell in Admin
 2. az login 
 
-Initial EF Core Migration:
+EFC Scaffolding (from src/RESTfulAPI):
 
     AppDbContext:
-    dotnet ef migrations add UpdateLogSchema_App --context AppDbContext --output-dir Persistence/Migrations/App -s src/RESTfulAPI -p src/RESTfulAPI
-    dotnet ef database update --context AppDbContext -s src/RESTfulAPI -p src/RESTfulAPI
+    dotnet ef dbcontext scaffold "Server=localhost;Database=PortfolioApp_Dev;Trusted_Connection=True;TrustServerCertificate=True;" Microsoft.EntityFrameworkCore.SqlServer --context AppDbContext --context-dir Persistence --output-dir Domain/Entities --no-onconfiguring --use-database-names --data-annotations --schema dbo --table Departments --table Patients --table Payments --table InsuranceProviders --table PaymentMethods --force
 
     LogDbContext:
-    dotnet ef migrations add UpdateLogSchema_Log --context LogDbContext --output-dir Persistence/Migrations/Log -s src/RESTfulAPI -p src/RESTfulAPI
-    dotnet ef database update --context LogDbContext -s src/RESTfulAPI -p src/RESTfulAPI
+    dotnet ef dbcontext scaffold "Server=localhost;Database=PortfolioApp_Dev;Trusted_Connection=True;TrustServerCertificate=True;" Microsoft.EntityFrameworkCore.SqlServer --context LogDbContext --context-dir Persistence --output-dir Domain/Entities --no-onconfiguring --use-database-names --data-annotations --schema dbo --table RequestLogs --force
+
+Initial EF Core Migration (from portfolio):
+
+    AppDbContext:
+    dotnet ef migrations add Baseline_App --context AppDbContext --output-dir Persistence/Migrations/App -s src/RESTfulAPI -p src/RESTfulAPI
+
+    LogDbContext:
+    dotnet ef migrations add Baseline_Log --context LogDbContext --output-dir Persistence/Migrations/Log -s src/RESTfulAPI -p src/RESTfulAPI
+
