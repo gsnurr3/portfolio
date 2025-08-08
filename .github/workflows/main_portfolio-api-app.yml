@@ -1,81 +1,67 @@
-name: Build and deploy ASP.Net Core app to Azure Web App - portfolio-api-app
+name: Deploy API
 
 on:
   push:
     branches:
       - main
-  workflow_dispatch:
 
 jobs:
-  build:
-    runs-on: windows-latest
-    permissions:
-      contents: read
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Setup .NET
-        uses: actions/setup-dotnet@v4
-        with:
-          dotnet-version: '8.x'
-
-      - name: Build
-        run: dotnet build --configuration Release
-
-      - name: Publish
-        run: dotnet publish --configuration Release --output "${{ env.DOTNET_ROOT }}/myapp"
-
-      - name: Upload published app
-        uses: actions/upload-artifact@v4
-        with:
-          name: dotnet-app
-          path: ${{ env.DOTNET_ROOT }}/myapp
-
   deploy:
-    runs-on: windows-latest
-    needs: build
-    permissions:
-      contents: read
-      id-token: write
+    runs-on: windows-2022
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Download published artifact
+      - name: Download dotnet-app artifact
         uses: actions/download-artifact@v4
         with:
           name: dotnet-app
 
-      - name: Login to Azure
+      - name: Setup .NET 8.x
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.x'
+
+      - name: Install EF Core global tool
+        shell: pwsh
+        run: dotnet tool install --global dotnet-ef --version 8.*
+
+      - name: Login to Azure with OIDC
         uses: azure/login@v2
         with:
           client-id: ${{ secrets.AZURE_CLIENT_ID }}
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          environment: azurecloud
+          auth-type: service-principal
 
-      - name: Apply EF Core migrations
+      - name: Apply EF Core migrations (both contexts)
         shell: pwsh
         working-directory: src/RESTfulAPI
         env:
+          # your connection string secret
           PROD_SQL_CONN: ${{ secrets.PROD_SQL_CONN }}
         run: |
-          # install the EF CLI as a global tool
-          dotnet tool install --global dotnet-ef --version 8.*
-          # make sure the shim is on PATH
-          $env:PATH += ";${env:USERPROFILE}\.dotnet\tools"
-          # now invoke migrations via the dotnet-ef tool
+          # ensure dotnet-ef is on the PATH
+          $Env:PATH += ";${Env:USERPROFILE}\.dotnet\tools"
+
+          # migrate the main AppDbContext
           dotnet-ef database update `
             --context AppDbContext `
-            --connection "${PROD_SQL_CONN}" `
+            --connection $Env:PROD_SQL_CONN `
+            --project RESTfulAPI.csproj `
+            --startup-project RESTfulAPI.csproj
+
+          # migrate the LogDbContext
+          dotnet-ef database update `
+            --context LogDbContext `
+            --connection $Env:PROD_SQL_CONN `
             --project RESTfulAPI.csproj `
             --startup-project RESTfulAPI.csproj
 
       - name: Deploy to Azure Web App
         uses: azure/webapps-deploy@v3
         with:
-          app-name: 'portfolio-api-app'
-          slot-name: 'Production'
-          package: ${{ env.DOTNET_ROOT }}/myapp
+          app-name: ${{ secrets.AZURE_WEBAPP_NAME }}
+          package: src/RESTfulAPI/bin/Release/net8.0/publish
