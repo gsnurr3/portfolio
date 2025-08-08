@@ -13,9 +13,10 @@ jobs:
       contents: read
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-      - name: Setup .NET
+      - name: Set up .NET Core
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '8.x'
@@ -29,7 +30,7 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: .net-app
+          name: dotnet-app
           path: ${{ env.DOTNET_ROOT }}/myapp
 
   deploy:
@@ -40,57 +41,35 @@ jobs:
       contents: read
 
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/download-artifact@v4
+      - name: Download artifact
+        uses: actions/download-artifact@v4
         with:
-          name: .net-app
+          name: dotnet-app
 
-      - uses: actions/setup-dotnet@v4
-        with:
-          dotnet-version: '8.x'
+      - name: Install EF Core tool
+        run: dotnet tool install --global dotnet-ef --version 8.*
 
-      - name: Azure Login
+      - name: Login to Azure
         uses: azure/login@v2
         with:
-          client-id:       ${{ secrets.AZUREAPPSERVICE_CLIENTID_9528EFAC17724C169359C043E6CBB6C9 }}
-          tenant-id:       ${{ secrets.AZUREAPPSERVICE_TENANTID_52CC510A03C04BB08C710FDEF8392896 }}
+          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_9528EFAC17724C169359C043E6CBB6C9 }}
+          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_52CC510A03C04BB08C710FDEF8392896 }}
           subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_3CFCA20D8D21481FBA2BF294169EF0B7 }}
 
-      - name: Apply AppDbContext migrations
-        shell: bash
-        env:
-          DOTNET_ENVIRONMENT: Production
-          AZURE_SQL_CONN:    ${{ secrets.PROD_SQL_CONN }}
+      - name: Run EF Core migrations
+        shell: pwsh
         run: |
-          # install EF tool
-          dotnet tool install --global dotnet-ef --version 8.*
-          export PATH="$HOME/.dotnet/tools:$PATH"
-
-          # run migrations against Azure SQL
-          dotnet-ef database update \
-            --connection "$AZURE_SQL_CONN" \
-            --context AppDbContext \
-            --project src/RESTfulAPI \
-            --startup-project src/RESTfulAPI
-
-      - name: Apply LogDbContext migrations
-        shell: bash
-        env:
-          DOTNET_ENVIRONMENT: Production
-          AZURE_SQL_CONN:    ${{ secrets.PROD_SQL_CONN }}
-        run: |
-          dotnet tool install --global dotnet-ef --version 8.*
-          export PATH="$HOME/.dotnet/tools:$PATH"
-
-          dotnet-ef database update \
-            --connection "$AZURE_SQL_CONN" \
-            --context LogDbContext \
-            --project src/RESTfulAPI \
+          # Make sure dotnet-ef is on the PATH
+          $env:PATH += ";${env:USERPROFILE}\.dotnet\tools"
+          dotnet-ef database update `
+            --context AppDbContext `
+            --connection "${{ secrets.PROD_SQL_CONN }}" `
+            --project src/RESTfulAPI `
             --startup-project src/RESTfulAPI
 
       - name: Deploy to Azure Web App
         uses: azure/webapps-deploy@v3
         with:
-          app-name:  'portfolio-api-app'
+          app-name: 'portfolio-api-app'
           slot-name: 'Production'
-          package:   ${{ env.DOTNET_ROOT }}/myapp
+          package: .
