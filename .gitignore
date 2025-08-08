@@ -1,0 +1,39 @@
+# Ignore build outputs
+bin/
+obj/
+
+# Ignore Visual Studio Code settings (optional)
+.vscode/
+
+# Ignore user-specific files
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Ignore temp files
+*.tmp
+*.temp
+*.log
+*.vspscc
+*.pdb
+
+# Ignore NuGet packages
+*.nupkg
+packages/
+
+# Ignore publish output
+publish/
+deploy/
+
+# Ignore SQL backups
+*.bak
+
+# Ignore your application logs
+src/RESTfulAPI/Logs/*.ndjson
+
+# Ignore macOS files
+.DS_Store
+
+# Ignore Windows thumbnail cache
+Thumbs.db
