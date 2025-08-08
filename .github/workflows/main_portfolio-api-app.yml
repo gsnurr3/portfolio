@@ -49,6 +49,7 @@ jobs:
         env:
           PROD_SQL_CONN: ${{ secrets.PROD_SQL_CONN }}
         run: |
+          # ensure dotnet-ef is on the PATH
           $Env:PATH += ";${Env:USERPROFILE}\.dotnet\tools"
 
           dotnet-ef database update `
@@ -67,4 +68,4 @@ jobs:
         uses: azure/webapps-deploy@v3
         with:
           app-name: ${{ secrets.AZURE_WEBAPP_NAME }}
-          package: publish
+          package: ./publish
