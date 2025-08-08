@@ -1,6 +1,7 @@
 # Ignore build outputs
 bin/
 obj/
+tests/obj/
 
 # Ignore Visual Studio Code settings (optional)
 .vscode/

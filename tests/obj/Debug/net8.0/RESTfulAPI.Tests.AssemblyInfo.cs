@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("RESTfulAPI.Tests")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+611b98a8d17286345924a88f501ed30dd378030d")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+661aeec9d963eaa7dd0c22797ce5250349aca8a3")]
 [assembly: System.Reflection.AssemblyProductAttribute("RESTfulAPI.Tests")]
 [assembly: System.Reflection.AssemblyTitleAttribute("RESTfulAPI.Tests")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
