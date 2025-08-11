@@ -9,8 +9,6 @@ namespace RESTfulAPI.Application.MediatR.Handlers
     {
         async Task<IReadOnlyList<Patient>> IRequestHandler<GetPatientsRequest, IReadOnlyList<Patient>>.Handle(GetPatientsRequest request, CancellationToken cancellationToken)
         {
-            throw new Exception("This is a test.");
-
             var patients = await _patientRepository.GetAllAsync(cancellationToken);
 
             return patients;
