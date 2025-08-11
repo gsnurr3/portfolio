@@ -24,9 +24,6 @@ public static class ExceptionHandlingExtensions
                 var log = ctx.RequestServices.GetRequiredService<ILoggerFactory>()
                                              .CreateLogger("GlobalException");
 
-                // Log first – always do this before mutating the response
-                log.LogError(ex, "Unhandled exception");
-
                 // Map exception → ApiResponse envelope
                 ApiResponse<object?> envelope = ex switch
                 {

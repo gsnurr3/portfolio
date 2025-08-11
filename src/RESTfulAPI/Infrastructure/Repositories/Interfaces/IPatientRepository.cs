@@ -4,6 +4,6 @@ namespace RESTfulAPI.Infrastructure.Repositories.Interfaces
 {
     public interface IPatientRepository
     {
-        Task<ICollection<Patient>> GetAllPatientsAsync();
+        Task<IReadOnlyList<Patient>> GetAllAsync(CancellationToken cancellationToken);
     }
 }

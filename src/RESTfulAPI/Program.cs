@@ -1,4 +1,3 @@
-using FluentValidation;
 using MediatR;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -11,8 +10,8 @@ using Microsoft.OpenApi.Models;
 using RESTfulAPI.Application.Behaviors;
 using RESTfulAPI.Application.Filters;
 using RESTfulAPI.Application.Requests;
-using RESTfulAPI.Application.Validators;
 using RESTfulAPI.Infrastructure.Auth;
+using RESTfulAPI.Infrastructure.HostedServices;
 using RESTfulAPI.Infrastructure.Repositories;
 using RESTfulAPI.Infrastructure.Repositories.Interfaces;
 using RESTfulAPI.Persistence;
@@ -45,14 +44,24 @@ var sql = builder.Environment.IsDevelopment()
 //    migrations table and schema.
 // ──────────────────────────────────────────────────────────────────────────────
 builder.Services.AddDbContext<AppDbContext>(o =>
-    o.UseSqlServer(sql,
-        b => b.MigrationsAssembly(typeof(AppDbContext).Assembly.FullName)
-              .MigrationsHistoryTable("__EFMigrationsHistory_App", "app")));
+    o.UseSqlServer(sql, b =>
+    {
+        b.MigrationsAssembly(typeof(AppDbContext).Assembly.FullName)
+         .MigrationsHistoryTable("__EFMigrationsHistory_App", "app")
+         .EnableRetryOnFailure(maxRetryCount: 5, maxRetryDelay: TimeSpan.FromSeconds(10), errorNumbersToAdd: null);
+    }));
 
 builder.Services.AddDbContext<LogDbContext>(o =>
-    o.UseSqlServer(sql,
-        b => b.MigrationsAssembly(typeof(LogDbContext).Assembly.FullName)
-              .MigrationsHistoryTable("__EFMigrationsHistory_Log", "log")));
+o.UseSqlServer(sql, b =>
+{
+    b.MigrationsAssembly(typeof(LogDbContext).Assembly.FullName)
+     .MigrationsHistoryTable("__EFMigrationsHistory_Log", "log")
+     .EnableRetryOnFailure(maxRetryCount: 5, maxRetryDelay: TimeSpan.FromSeconds(10), errorNumbersToAdd: null);
+}));
+
+// Wake up prod database upon app launch.
+if (!builder.Environment.IsDevelopment())
+    builder.Services.AddHostedService<DbWarmupService>();
 
 // ──────────────────────────────────────────────────────────────────────────────
 // 4) Configure CORS policy for our SPA frontend on localhost
@@ -78,7 +87,7 @@ if (builder.Environment.IsDevelopment())
         .AddAuthentication("Dev")
         .AddScheme<AuthenticationSchemeOptions, DevAuthHandler>("Dev", _ => { });
 
-    // Every request is treated as authenticated (so you can still decorate with [Authorize])
+    // Every request is treated as authenticated (so can still decorate with [Authorize])
     builder.Services.AddAuthorization(opt =>
     {
         opt.FallbackPolicy = new AuthorizationPolicyBuilder()
@@ -182,8 +191,8 @@ builder.Services.AddSwaggerGen(opt =>
 //    - SerilogEnrichingBehavior adds RequestName/CorrelationId to log context
 //    - ValidationBehavior throws on any FluentValidation failures
 // ──────────────────────────────────────────────────────────────────────────────
-builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblyContaining<PatientGetAllRequest>());
-builder.Services.AddValidatorsFromAssemblyContaining<PatientGetAllRequestValidator>();
+builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblyContaining<GetPatientsRequest>());
+// builder.Services.AddValidatorsFromAssemblyContaining<PatientGetAllRequestValidator>();
 
 builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(SerilogEnrichingBehavior<,>));
 builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
@@ -199,6 +208,7 @@ try
 
     var app = builder.Build();
 
+    app.UseRequestLogMiddleware();
     app.UseGlobalExceptionHandling();
 
     app.UseSwagger();
@@ -214,6 +224,7 @@ try
     app.UseAuthentication();
     app.UseAuthorization();
     app.UseCors("Spa");
+
     app.MapControllers();
 
     app.Run();
