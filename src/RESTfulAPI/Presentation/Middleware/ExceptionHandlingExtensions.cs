@@ -16,23 +16,16 @@ public static class ExceptionHandlingExtensions
         {
             appErr.Run(async ctx =>
             {
-                // Grab the thrown exception (null if somehow missing)
                 var ex = ctx.Features.Get<IExceptionHandlerFeature>()?.Error;
-
-                // Get helpers from the DI container
                 var env = ctx.RequestServices.GetRequiredService<IHostEnvironment>();
-                var log = ctx.RequestServices.GetRequiredService<ILoggerFactory>()
-                                             .CreateLogger("GlobalException");
 
                 // Map exception → ApiResponse envelope
                 ApiResponse<object?> envelope = ex switch
                 {
-                    // FluentValidation – 422
+                    // 422 – FluentValidation
                     ValidationException ve => ApiResponse.ValidationFailed(
                         ve.Errors.Select(e =>
-                            new ApiError(e.ErrorCode,
-                                         e.ErrorMessage,
-                                         e.PropertyName))),
+                            new ApiError(e.ErrorCode, e.ErrorMessage, e.PropertyName))),
 
                     // 404
                     KeyNotFoundException knf => ApiResponse.NotFound(knf.Message),
@@ -43,11 +36,10 @@ public static class ExceptionHandlingExtensions
                     // 400 (argument / domain rule breaches)
                     ArgumentException ae => ApiResponse.BadRequest(ae.Message),
 
-                    // Everything else - 500
+                    // Everything else – 500
                     _ => BuildGenericError(env, ex)
                 };
 
-                // Craft the HTTP response
                 ctx.Response.StatusCode = envelope.Status;
                 ctx.Response.ContentType = "application/json";
                 await ctx.Response.WriteAsJsonAsync(envelope);
@@ -55,11 +47,11 @@ public static class ExceptionHandlingExtensions
         });
     }
 
-    // Helper for 500 payloads
+    // 500 payloads (detailed in Dev, safe in Prod)
     private static ApiResponse<object?> BuildGenericError(IHostEnvironment env, Exception? ex)
         => env.IsDevelopment()
-           ? ApiResponse.BadRequest(ex?.Message ?? "Unhandled error",
+           ? ApiResponse.Error(
+                 "Unhandled exception.",
                  new[] { new ApiError("Exception", ex?.ToString() ?? string.Empty) })
-           : ApiResponse.BadRequest("An unexpected error occurred. " +
-                                    "Please contact support.");
+           : ApiResponse.Error("An unexpected error occurred. Please contact support.");
 }

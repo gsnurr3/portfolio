@@ -24,6 +24,7 @@ public sealed class RequestLogMiddleware
         var requestId = Guid.NewGuid();
         var correlationId = GetOrCreateCorrelationId(ctx);
         ctx.Response.Headers["X-Request-ID"] = requestId.ToString();
+        ctx.Items["CorrelationId"] = correlationId;
 
         // Capture small JSON request body without consuming it
         string? requestBody = null;

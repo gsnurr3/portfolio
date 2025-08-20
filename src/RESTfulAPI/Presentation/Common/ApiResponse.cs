@@ -1,5 +1,3 @@
-using System.Diagnostics;
-
 namespace RESTfulAPI.Presentation.Common
 {
     /// <summary>
@@ -32,7 +30,7 @@ namespace RESTfulAPI.Presentation.Common
             Data = data;
             Errors = errors;
             CorrelationId = correlationId
-                          ?? Activity.Current?.TraceId.ToString()   // OpenTelemetry / System.Diagnostics
+                          ?? ApiResponseCorrelation.Get()
                           ?? Guid.NewGuid().ToString("N");
             Timestamp = DateTimeOffset.UtcNow;
         }
@@ -95,6 +93,14 @@ namespace RESTfulAPI.Presentation.Common
             => new(false, StatusCodes.Status422UnprocessableEntity,
                    "Validation failed.", default, errors.ToList(), correlationId);
 
+        // Generic 500 factory
+        public static ApiResponse<TData> Error(
+            string message = "An unexpected error occurred.",
+            IEnumerable<ApiError>? errors = null,
+            string? correlationId = null)
+            => new(false, StatusCodes.Status500InternalServerError,
+                   message, default, errors?.ToList(), correlationId);
+
         // ── Internal helper
         private ApiResponse<TData> WithLocation(string location)
         {
@@ -136,6 +142,11 @@ namespace RESTfulAPI.Presentation.Common
         public static ApiResponse<object?> ValidationFailed(
             IEnumerable<ApiError> errs, string? corr = null)
             => ApiResponse<object?>.ValidationFailed(errs, corr);
+
+        // Non-generic 500 shortcut
+        public static ApiResponse<object?> Error(
+            string? message = null, IEnumerable<ApiError>? errs = null, string? corr = null)
+            => ApiResponse<object?>.Error(message ?? "An unexpected error occurred.", errs, corr);
     }
 
     /// <summary>

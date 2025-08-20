@@ -109,7 +109,8 @@ else
         {
             OnChallenge = ctx =>
             {
-                var payload = ApiResponse.Unauthorized("Access token is missing or invalid.");
+                var corr = ApiResponseCorrelation.Get();
+                var payload = ApiResponse.Unauthorized("Access token is missing or invalid.", corr);
                 ctx.HandleResponse();
                 ctx.Response.StatusCode = payload.Status;
                 ctx.Response.ContentType = "application/json";
@@ -117,7 +118,8 @@ else
             },
             OnForbidden = ctx =>
             {
-                var payload = ApiResponse.Forbidden("You do not have permission.");
+                var corr = ApiResponseCorrelation.Get();
+                var payload = ApiResponse.Forbidden("You do not have permission.", corr);
                 ctx.Response.StatusCode = payload.Status;
                 ctx.Response.ContentType = "application/json";
                 return ctx.Response.WriteAsJsonAsync(payload);
@@ -144,7 +146,7 @@ builder.Services.Configure<ApiBehaviorOptions>(opts =>
                         .SelectMany(kvp => kvp.Value!.Errors
                                              .Select(e => new ApiError("Validation", e.ErrorMessage, kvp.Key)))
                         .ToList();
-        var envelope = ApiResponse.ValidationFailed(errors);
+        var envelope = ApiResponse.ValidationFailed(errors, ApiResponseCorrelation.Get());
         return new ObjectResult(envelope) { StatusCode = envelope.Status };
     };
 });
@@ -199,6 +201,8 @@ builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBeh
 
 builder.Services.AddScoped<IPatientRepository, PatientRepository>();
 
+builder.Services.AddHttpContextAccessor();
+
 // ──────────────────────────────────────────────────────────────────────────────
 // 8) Build & run the app, wiring up exception handling, swagger, auth, CORS, etc.
 // ──────────────────────────────────────────────────────────────────────────────
@@ -207,6 +211,9 @@ try
     Log.Information("Starting up");
 
     var app = builder.Build();
+
+    // Initialize correlation helper
+    ApiResponseCorrelation.Initialize(app.Services.GetRequiredService<IHttpContextAccessor>());
 
     app.UseRequestLogMiddleware();
     app.UseGlobalExceptionHandling();
