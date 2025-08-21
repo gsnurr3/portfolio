@@ -7,7 +7,8 @@ using RESTfulAPI.Presentation.Responses;
 
 namespace RESTfulAPI.Application.MediatR.Handlers
 {
-    public class GetPatientsHandler(IMapper _mapper, IPatientRepository _patientRepository) : IRequestHandler<GetPatientsRequest, GetPatientsResponse>
+    public class GetPatientsHandler(IMapper _mapper, IPatientRepository _patientRepository)
+        : IRequestHandler<GetPatientsRequest, GetPatientsResponse>
     {
         async Task<GetPatientsResponse> IRequestHandler<GetPatientsRequest, GetPatientsResponse>.Handle(GetPatientsRequest request, CancellationToken cancellationToken)
         {

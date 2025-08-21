@@ -119,6 +119,9 @@ namespace RESTfulAPI.Presentation.Common
         public static ApiResponse<T> Ok<T>(T data, string? msg = null, string? corr = null)
             => ApiResponse<T>.Ok(data, msg, corr);
 
+        public static ApiResponse<T> Created<T>(T data, string location, string? msg = null, string? corr = null)
+        => ApiResponse<T>.Created(data, location, msg, corr);
+
         public static ApiResponse<object?> NoContent(string? corr = null)
             => ApiResponse<object?>.NoContent(corr);
 

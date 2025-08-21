@@ -1,4 +1,5 @@
 using System.Text.Json.Serialization;
+using FluentValidation;
 using MediatR;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -12,6 +13,7 @@ using RESTfulAPI.Application.Behaviors;
 using RESTfulAPI.Application.Filters;
 using RESTfulAPI.Application.Mappers;
 using RESTfulAPI.Application.Requests;
+using RESTfulAPI.Application.Validators;
 using RESTfulAPI.Infrastructure.Auth;
 using RESTfulAPI.Infrastructure.HostedServices;
 using RESTfulAPI.Infrastructure.Repositories;
@@ -54,12 +56,12 @@ builder.Services.AddDbContext<AppDbContext>(o =>
     }));
 
 builder.Services.AddDbContext<LogDbContext>(o =>
-o.UseSqlServer(sql, b =>
-{
-    b.MigrationsAssembly(typeof(LogDbContext).Assembly.FullName)
-     .MigrationsHistoryTable("__EFMigrationsHistory_Log", "log")
-     .EnableRetryOnFailure(maxRetryCount: 5, maxRetryDelay: TimeSpan.FromSeconds(10), errorNumbersToAdd: null);
-}));
+    o.UseSqlServer(sql, b =>
+    {
+        b.MigrationsAssembly(typeof(LogDbContext).Assembly.FullName)
+        .MigrationsHistoryTable("__EFMigrationsHistory_Log", "log")
+        .EnableRetryOnFailure(maxRetryCount: 5, maxRetryDelay: TimeSpan.FromSeconds(10), errorNumbersToAdd: null);
+    }));
 
 // Wake up prod database upon app launch.
 if (!builder.Environment.IsDevelopment())
@@ -148,7 +150,9 @@ builder.Services.Configure<ApiBehaviorOptions>(opts =>
                         .SelectMany(kvp => kvp.Value!.Errors
                                              .Select(e => new ApiError("Validation", e.ErrorMessage, kvp.Key)))
                         .ToList();
+
         var envelope = ApiResponse.ValidationFailed(errors, ApiResponseCorrelation.Get());
+
         return new ObjectResult(envelope) { StatusCode = envelope.Status };
     };
 });
@@ -202,8 +206,10 @@ builder.Services.AddSwaggerGen(opt =>
 //    - SerilogEnrichingBehavior adds RequestName/CorrelationId to log context
 //    - ValidationBehavior throws on any FluentValidation failures
 // ──────────────────────────────────────────────────────────────────────────────
+builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblyContaining<PostPatientRequest>());
 builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblyContaining<GetPatientsRequest>());
-// builder.Services.AddValidatorsFromAssemblyContaining<PatientGetAllRequestValidator>();
+
+builder.Services.AddValidatorsFromAssemblyContaining<PostPatientRequestValidator>();
 
 builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(SerilogEnrichingBehavior<,>));
 builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
