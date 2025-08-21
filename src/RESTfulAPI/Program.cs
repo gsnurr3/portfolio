@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using MediatR;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -9,6 +10,7 @@ using Microsoft.Identity.Web;
 using Microsoft.OpenApi.Models;
 using RESTfulAPI.Application.Behaviors;
 using RESTfulAPI.Application.Filters;
+using RESTfulAPI.Application.Mappers;
 using RESTfulAPI.Application.Requests;
 using RESTfulAPI.Infrastructure.Auth;
 using RESTfulAPI.Infrastructure.HostedServices;
@@ -157,7 +159,14 @@ builder.Services.AddControllers(opts =>
     opts.Conventions.Insert(0, new RoutePrefixConvention("api"));
     // Transform action parameter names to lowercase ("slugify")
     opts.Conventions.Add(new RouteTokenTransformerConvention(new SlugifyParameterTransformer()));
-});
+})
+    .AddJsonOptions(opts =>
+    {
+        // Serializes all enums as strings
+        opts.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+    });
+
+builder.Services.AddAutoMapper(typeof(GetPatientsMapper).Assembly);
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(opt =>
@@ -165,7 +174,7 @@ builder.Services.AddSwaggerGen(opt =>
     var scope = builder.Configuration["AzureAd:Scopes"];
     var tenant = builder.Configuration["AzureAd:TenantId"];
 
-    opt.SwaggerDoc("v1", new() { Title = "Gordon's API", Version = "v1" });
+    opt.SwaggerDoc("v1", new() { Title = "Gordon's Azure .Net API Demo", Version = "v1" });
 
     if (!string.IsNullOrWhiteSpace(scope))
     {
@@ -218,7 +227,7 @@ try
     app.UseRequestLogMiddleware();
     app.UseGlobalExceptionHandling();
 
-    app.UseSwagger();
+    app.UseSwagger(); // Currently make swagger available in both dev and prod for demo purposes until frontend is added.
     app.UseSwaggerUI(ui =>
     {
         ui.OAuthClientId(builder.Configuration["Swagger:ClientId"]);

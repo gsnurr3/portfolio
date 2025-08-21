@@ -1,17 +1,21 @@
+using AutoMapper;
 using MediatR;
+using RESTfulAPI.Application.DTOs;
 using RESTfulAPI.Application.Requests;
-using RESTfulAPI.Domain.Entities;
 using RESTfulAPI.Infrastructure.Repositories.Interfaces;
+using RESTfulAPI.Presentation.Responses;
 
 namespace RESTfulAPI.Application.MediatR.Handlers
 {
-    public class GetPatientsHandler(IPatientRepository _patientRepository) : IRequestHandler<GetPatientsRequest, IReadOnlyList<Patient>>
+    public class GetPatientsHandler(IMapper _mapper, IPatientRepository _patientRepository) : IRequestHandler<GetPatientsRequest, GetPatientsResponse>
     {
-        async Task<IReadOnlyList<Patient>> IRequestHandler<GetPatientsRequest, IReadOnlyList<Patient>>.Handle(GetPatientsRequest request, CancellationToken cancellationToken)
+        async Task<GetPatientsResponse> IRequestHandler<GetPatientsRequest, GetPatientsResponse>.Handle(GetPatientsRequest request, CancellationToken cancellationToken)
         {
-            var patients = await _patientRepository.GetAllAsync(cancellationToken);
+            var response = new GetPatientsResponse();
 
-            return patients;
+            response.Patients = _mapper.Map<List<GetPatientsDTO>>(await _patientRepository.GetAllAsync(cancellationToken));
+
+            return response;
         }
     }
 }

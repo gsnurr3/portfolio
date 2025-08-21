@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore;
+using RESTfulAPI.Domain.Enums;
 
 namespace RESTfulAPI.Domain.Entities;
 
@@ -25,7 +26,7 @@ public partial class Payment
     [StringLength(50)]
     public string? InsuranceClaimNumber { get; set; }
 
-    public byte Status { get; set; }
+    public PaymentStatus Status { get; set; }
 
     public DateTime CreatedAt { get; set; }
 

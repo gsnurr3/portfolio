@@ -1,7 +1,7 @@
 using MediatR;
-using RESTfulAPI.Domain.Entities;
+using RESTfulAPI.Presentation.Responses;
 
 namespace RESTfulAPI.Application.Requests
 {
-    public sealed record GetPatientsRequest : IRequest<IReadOnlyList<Patient>>;
+    public sealed record GetPatientsRequest : IRequest<GetPatientsResponse>;
 }

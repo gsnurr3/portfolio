@@ -9,7 +9,9 @@ namespace RESTfulAPI.Infrastructure.Repositories
     {
         public async Task<IReadOnlyList<Patient>> GetAllAsync(CancellationToken cancellationToken)
         {
-            return await _appDbContext.Patients.AsNoTracking().ToListAsync(cancellationToken);
+            return await _appDbContext.Patients
+                            .AsNoTracking()
+                            .ToListAsync(cancellationToken);
         }
     }
 }

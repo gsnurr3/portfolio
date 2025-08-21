@@ -21,10 +21,10 @@ Azure CLI Login:
 EFC Scaffolding (from src/RESTfulAPI):
 
     AppDbContext:
-    dotnet ef dbcontext scaffold "Server=localhost;Database=PortfolioApp_Dev;Trusted_Connection=True;TrustServerCertificate=True;" Microsoft.EntityFrameworkCore.SqlServer --context AppDbContext --context-dir Persistence --output-dir Domain/Entities --no-onconfiguring --use-database-names --data-annotations --schema dbo --table Departments --table Patients --table Payments --table InsuranceProviders --table PaymentMethods --force
+    dotnet ef dbcontext scaffold "Server=localhost;Database=PortfolioApp_Dev;Trusted_Connection=True;TrustServerCertificate=True;" Microsoft.EntityFrameworkCore.SqlServer --context AppDbContext --context-dir Persistence --output-dir Domain/Entities --no-onconfiguring --use-database-names --data-annotations --schema dbo --table Departments --table Patients --table Payments --table InsuranceProviders --table PaymentMethods
 
     LogDbContext:
-    dotnet ef dbcontext scaffold "Server=localhost;Database=PortfolioApp_Dev;Trusted_Connection=True;TrustServerCertificate=True;" Microsoft.EntityFrameworkCore.SqlServer --context LogDbContext --context-dir Persistence --output-dir Domain/Entities --no-onconfiguring --use-database-names --data-annotations --schema dbo --table RequestLogs --force
+    dotnet ef dbcontext scaffold "Server=localhost;Database=PortfolioApp_Dev;Trusted_Connection=True;TrustServerCertificate=True;" Microsoft.EntityFrameworkCore.SqlServer --context LogDbContext --context-dir Persistence --output-dir Domain/Entities --no-onconfiguring --use-database-names --data-annotations --schema dbo --table RequestLogs
 
 Initial EF Core Migration (from portfolio):
 

@@ -55,7 +55,6 @@ public partial class AppDbContext : DbContext
 
             entity.Property(e => e.CreatedAt).HasDefaultValueSql("(sysutcdatetime())");
             entity.Property(e => e.PaymentDate).HasDefaultValueSql("(sysutcdatetime())");
-            entity.Property(e => e.Status).HasDefaultValue((byte)1);
             entity.Property(e => e.UpdatedAt).HasDefaultValueSql("(sysutcdatetime())");
 
             entity.HasOne(d => d.Department).WithMany(p => p.Payments)

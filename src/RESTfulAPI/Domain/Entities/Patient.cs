@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore;
+using RESTfulAPI.Domain.Enums;
 
 namespace RESTfulAPI.Domain.Entities;
 
@@ -21,9 +22,7 @@ public partial class Patient
 
     public DateOnly DateOfBirth { get; set; }
 
-    [StringLength(1)]
-    [Unicode(false)]
-    public string Gender { get; set; } = null!;
+    public Gender Gender { get; set; }
 
     [StringLength(200)]
     public string? Address { get; set; }
