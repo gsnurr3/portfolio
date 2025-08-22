@@ -207,9 +207,7 @@ All endpoints return:
 
   * `Gender` stored as `'M'/'F'/'O'` via a value converter; serialized as **strings** in JSON.
   * `PaymentStatus` stored as `TINYINT`; serialized as **strings** in JSON.
-* **Interceptors**
-
-  * `NameNormalizationInterceptor` capitalizes `FirstName`/`LastName` on `SaveChanges`.
+    
 * **MediatR + AutoMapper**
 
   * DTOs live under `Application/DTOs`, mappings under `Application/Mappers`.
