@@ -5,6 +5,10 @@ namespace RESTfulAPI.Application.Validators
 {
     public sealed class PostPatientRequestValidator : AbstractValidator<PostPatientRequest>
     {
+        // Each token (split by space, hyphen, or apostrophe) must be Title Case:
+        // "Jane", "Mary-Jane", "O'Neil" are valid; "jane", "JANE", "McDonald" are not.
+        private const string NamePattern = @"^(?:[A-Z][a-z]*)(?:[ '-][A-Z][a-z]*)*$";
+
         public PostPatientRequestValidator()
         {
             RuleFor(x => x.MedicalRecordNumber)
@@ -15,14 +19,26 @@ namespace RESTfulAPI.Application.Validators
                 .WithMessage("Please provide a real MedicalRecordNumber.");
 
             RuleFor(x => x.FirstName)
-                .NotEmpty().MaximumLength(50)
-                .Matches(@"^[A-Za-z][A-Za-z '\-]*$").WithMessage("FirstName contains invalid characters.")
-                .Must(v => !string.Equals(v, "string", StringComparison.OrdinalIgnoreCase));
+                .Cascade(CascadeMode.Stop)
+                .NotEmpty().WithMessage("FirstName is required.")
+                .MaximumLength(50)
+                .Must(v => v == v.Trim()).WithMessage("FirstName must not start or end with spaces.")
+                .Matches(NamePattern).WithMessage(
+                    "FirstName must be capitalized: first letter uppercase, remaining letters lowercase. " +
+                    "Each name part after a space, hyphen, or apostrophe must also be capitalized.")
+                .Must(v => !string.Equals(v, "string", StringComparison.OrdinalIgnoreCase))
+                .WithMessage("Please provide a real First Name.");
 
             RuleFor(x => x.LastName)
-                .NotEmpty().MaximumLength(50)
-                .Matches(@"^[A-Za-z][A-Za-z '\-]*$").WithMessage("LastName contains invalid characters.")
-                .Must(v => !string.Equals(v, "string", StringComparison.OrdinalIgnoreCase));
+                .Cascade(CascadeMode.Stop)
+                .NotEmpty().WithMessage("LastName is required.")
+                .MaximumLength(50)
+                .Must(v => v == v.Trim()).WithMessage("LastName must not start or end with spaces.")
+                .Matches(NamePattern).WithMessage(
+                    "LastName must be capitalized: first letter uppercase, remaining letters lowercase. " +
+                    "Each name part after a space, hyphen, or apostrophe must also be capitalized.")
+                .Must(v => !string.Equals(v, "string", StringComparison.OrdinalIgnoreCase))
+                .WithMessage("Please provide a real Last Name.");
 
             RuleFor(x => x.DateOfBirth)
                 .LessThanOrEqualTo(DateOnly.FromDateTime(DateTime.UtcNow))
