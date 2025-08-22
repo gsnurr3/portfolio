@@ -38,19 +38,19 @@ A production-style ASP.NET Core Web API showcasing clean architecture, Azure AD 
 ## Architecture
 
 ```mermaid
-flowchart TD
-  A[Client / Swagger UI] --> B[ASP.NET Core Middleware]
-  B --> C[Authentication & Authorization]
-  B --> D[RequestLogMiddleware]
-  B --> E[Controllers (Application)]
-  E --> F[MediatR Handlers & Behaviors]
-  F --> G[FluentValidation]
-  E --> H[AutoMapper]
-  E --> I[Repositories (Infrastructure)]
-  I --> J[EF Core (Persistence)]
-  J --> K[(SQL Server: AppDb)]
-  D --> L[(SQL Server: RequestLogs)]
-  B --> M[Global Exception Handler -> ApiResponse&lt;T&gt;]
+graph TD
+  client[Client / Swagger UI] --> middleware[ASP.NET Core Middleware]
+  middleware --> auth[Authentication and Authorization]
+  middleware --> reqlog[RequestLogMiddleware]
+  middleware --> controllers[Controllers (Application)]
+  controllers --> mediatr[MediatR Handlers and Behaviors]
+  mediatr --> fv[FluentValidation]
+  controllers --> automapper[AutoMapper]
+  controllers --> repos[Repositories (Infrastructure)]
+  repos --> ef[EF Core (Persistence)]
+  ef --> appdb[(SQL Server: AppDb)]
+  reqlog --> logdb[(SQL Server: RequestLogs)]
+  middleware --> ex[Global Exception Handler -> ApiResponse&lt;T&gt;]
 ```
 
 ---
