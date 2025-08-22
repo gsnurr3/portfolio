@@ -39,34 +39,32 @@ A production-style ASP.NET Core Web API showcasing clean architecture, Azure AD 
 
 ```mermaid
 flowchart TD
-  %% --- Nodes ---
-  client[Client / Swagger UI]
-  middleware[ASP.NET Core Middleware]
-  auth[Authentication and Authorization]
-  reqlog[RequestLogMiddleware]
-  controllers[Controllers (Application)]
-  mediatr[MediatR Handlers and Behaviors]
-  fv[FluentValidation]
-  automapper[AutoMapper]
-  repos[Repositories (Infrastructure)]
-  ef[EF Core (Persistence)]
-  appdb[(SQL Server: AppDb)]
-  logdb[(SQL Server: RequestLogs)]
-  ex[Global Exception Handler and ApiResponse]
+  client["Client and Swagger UI"];
+  middleware["ASP.NET Core Middleware"];
+  auth["Authentication and Authorization"];
+  reqlog["RequestLogMiddleware"];
+  controllers["Controllers"];
+  mediatr["MediatR Handlers and Behaviors"];
+  fv["FluentValidation"];
+  automapper["AutoMapper"];
+  repos["Repositories (Infrastructure)"];
+  ef["EF Core (Persistence)"];
+  appdb["SQL Server: AppDb"];
+  logdb["SQL Server: RequestLogs"];
+  ex["Global Exception Handler and ApiResponse"];
 
-  %% --- Edges ---
-  client --> middleware
-  middleware --> auth
-  middleware --> reqlog
-  middleware --> controllers
-  controllers --> mediatr
-  mediatr --> fv
-  controllers --> automapper
-  controllers --> repos
-  repos --> ef
-  ef --> appdb
-  reqlog --> logdb
-  middleware --> ex
+  client --> middleware;
+  middleware --> auth;
+  middleware --> reqlog;
+  middleware --> controllers;
+  controllers --> mediatr;
+  mediatr --> fv;
+  controllers --> automapper;
+  controllers --> repos;
+  repos --> ef;
+  ef --> appdb;
+  reqlog --> logdb;
+  middleware --> ex;
 ```
 
 ---
